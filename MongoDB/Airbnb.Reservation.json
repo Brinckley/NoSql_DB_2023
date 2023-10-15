@@ -1,0 +1,7 @@
+[{
+  "_id": 1,
+  "clien_id": 1,
+  "room_id": 1,
+  "booking_date": "10.11.2023",
+  "booking_status": "paid"
+}]
