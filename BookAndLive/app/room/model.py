@@ -1,5 +1,5 @@
 from typing_extensions import TypedDict
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class Address(TypedDict, total=False):
