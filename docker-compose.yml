@@ -6,6 +6,8 @@ services:
     build: 
       context: ./BookAndLive
     networks: [ "pynet" ]
+    environment:
+      - MONGODB_URL=mongodb://localhost:27017/ #mongodb://localhost:27018,localhost:27019,localhost:27020/local?readPreference=primary&replicaSet=rs
 
 networks:
     pynet:
