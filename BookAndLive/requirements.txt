@@ -1,3 +1,8 @@
-fastapi>=0.68.0,<0.69.0
-pydantic>=1.8.0,<2.0.0
-uvicorn>=0.15.0,<0.16.0
+fastapi==0.103.1
+pydantic==2.3.0
+pydantic_core==2.6.3
+uvicorn==0.23.2
+pymongo==4.5.0
+motor==3.3.1
+elasticsearch==8.10.0
+elasticsearch-dsl==8.9.0

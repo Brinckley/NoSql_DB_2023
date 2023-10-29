@@ -3,7 +3,7 @@ from app.room.repository_mongo import *
 from app.room.model import *
 
 room_router = APIRouter(
-    prefix="/",
+    prefix="",
     tags=["rooms"],
     responses={404: {"description": "Not found"}},
 )

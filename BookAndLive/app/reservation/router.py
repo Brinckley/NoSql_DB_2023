@@ -4,7 +4,7 @@ from app.reservation.repository_mongo import *
 
 
 reservation_router = APIRouter(
-    prefix="/",
+    prefix="/reservations",
     tags=["reservations"],
     responses={404: {"description": "Not found"}},
 )
