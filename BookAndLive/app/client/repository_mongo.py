@@ -11,7 +11,7 @@ def get_client(client_id):
     return fake_clients[client_id]
 
 
-# adding new client to the db
+# adding new client to the repository
 def add_client(client):
     fake_clients.append(client)
 

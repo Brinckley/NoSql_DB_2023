@@ -11,8 +11,13 @@ class Address(TypedDict, total=False):
 class RoomSchema(BaseModel):
     id: int = Field(..., alias='_id')
     address: Address
-    description: str = Field(...)
-    attributes: str = Field(...)
+    description: str
+    attributes: str
+
+
+class UpdateRoomSchema(BaseModel):  # class contains changeable fields for RoomSchema
+    description: str
+    attributes: str
 
     class Config:
         schema_extra = {

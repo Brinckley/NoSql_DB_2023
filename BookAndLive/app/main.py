@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.room.router import room_router
 from app.client.router import client_router
 from app.reservation.router import reservation_router
-from app.db.db import connect_and_init_db, close_db_connect
+from app.repository.utils import *
 
 app = FastAPI(
     title="Book & Live"
@@ -11,5 +11,5 @@ app.include_router(room_router)
 app.include_router(client_router)
 app.include_router(reservation_router)
 
-app.add_event_handler("startup", connect_and_init_db)
-app.add_event_handler("shutdown", close_db_connect)
+app.add_event_handler("startup", startup_handling)
+app.add_event_handler("shutdown", shutdown_handling)
