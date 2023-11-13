@@ -10,6 +10,7 @@ services:
     networks: [ "pynet" ]
     environment:
       - MONGO_URI=mongodb://mongo_db:27017/
+      - MEMCACHED_URI=memcached_node_01:11211
     depends_on:
       mongo_db:
         condition: service_started
@@ -48,6 +49,9 @@ services:
         hard: -1
     restart: always
     networks: [ "pynet" ]
+
+  memcached_node_01:
+    image: memcached
 
 networks:
     pynet:

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from pymemcache import HashClient
+from app.cache import *
 from app.client.model import *
 from app.client.repository_mongo import *
 
@@ -15,9 +17,15 @@ client_router = APIRouter(
     response_description="Get client profile",
     response_model=ClientSchema
 )
-async def client_by_id(client_id: str):
+async def client_by_id(client_id: str,
+                       memcached_client: HashClient = Depends(get_memcached_client)):
+    
+    client = memcached_client.get(client_id)
+    if client is not None:
+        return client
     if (client := await get_client(client_id)) is not None:
         return client
+    memcached_client.add(client_id, client)
     raise HTTPException(status_code=404, detail=f'Client with ID : {client_id} not found')
 
 
