@@ -7,9 +7,14 @@ from app.repository.elasticsearch_utils import get_es_client
 from app.client.model import ClientSchema, UpdateClientSchema
 
 
-class ClientSearchRepository:
+class ClientEsRepository:
     _elasticsearch_client: AsyncElasticsearch
     _elasticsearch_index: str
+
+    @staticmethod
+    def es_client_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_es_client)):
+        elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX')
+        return ClientEsRepository(elasticsearch_client, elasticsearch_index)
 
     def __int__(self, elasticsearch_client: AsyncElasticsearch, index: str):
         self._elasticsearch_client = elasticsearch_client
@@ -26,8 +31,3 @@ class ClientSearchRepository:
 
     async def find_by_name(self, name: str):  # logic not written yet
         return
-
-    @staticmethod
-    def es_client_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_es_client)):
-        elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX')
-        return ClientSearchRepository(elasticsearch_client, elasticsearch_index)

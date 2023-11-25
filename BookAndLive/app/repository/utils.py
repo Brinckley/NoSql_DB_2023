@@ -1,4 +1,4 @@
-from db import connect_and_init_db, close_db_connect
+from mongo_utils import connect_and_init_db, close_db_connect
 from elasticsearch_utils import connect_init_elasticsearch, close_elasticsearch_connect
 
 

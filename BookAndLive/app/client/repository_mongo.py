@@ -1,21 +1,36 @@
+from fastapi import Depends
+
+from motor.motor_asyncio import AsyncIOMotorCollection
+
 from app.client.model import *
+from app.repository.mongo_utils import get_mongo_client
 
 
-# in memory temporary storage
-fake_clients = []
+class ClientMongoRepository:
+    mongo_collection: AsyncIOMotorCollection
+
+    @staticmethod
+    def mongo_client_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_mongo_client)):
+        return ClientMongoRepository(mongo_collection)
 
 
-# getting client info by id
-def get_client(client_id):
-    # getting client data by id
-    return fake_clients[client_id]
+    def get_client(self,
+                   client_id: str) -> ClientSchema:
+        # getting client data by id
+        return ClientSchema()
 
 
-# adding new client to the repository
-def add_client(client):
-    fake_clients.append(client)
+    def add_client(self,
+                   client: ClientSchema) -> str:
+        return '0'
 
 
-# updating clients data by id
-def update_client(client_id, client):
-    fake_clients.append(client)
+    def update_client(self,
+                      client_id: str,
+                      client: UpdateClientSchema) -> ClientSchema:
+        return UpdateClientSchema()
+
+
+    def delete_client(self,
+                      client_id: str) -> ClientSchema:
+        return ClientSchema()

@@ -7,6 +7,7 @@ from app.repository.utils import *
 app = FastAPI(
     title="Book & Live"
 )
+
 app.include_router(room_router)
 app.include_router(client_router)
 app.include_router(reservation_router)

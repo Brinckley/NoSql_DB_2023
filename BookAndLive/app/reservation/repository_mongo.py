@@ -1,30 +1,35 @@
+from fastapi import Depends
+
+from motor.motor_asyncio import AsyncIOMotorCollection
+
+from app.repository.mongo_utils import get_mongo_client
 from app.reservation.model import *
 
 
-# in memory temporary storage
-fake_reservations = []
+class ReservationMongoRepository:
+    mongo_collection: AsyncIOMotorCollection
 
+    @staticmethod
+    def mongo_reservation_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_mongo_client)):
+        return ReservationMongoRepository(mongo_collection)
 
-# getting all reservations
-def get_all_reservations():
-    return fake_reservations
+    def get_all_reservations_by_client_id(self,
+                                          client_id: str) -> list:
+        return [ReservationSchema()]
 
+    def get_reservation(self,
+                        reservation_id: str) -> ReservationSchema:
+        return ReservationSchema()
 
-# getting reservation from mongoDb by ID
-def get_reservation(reservation_id):
-    return fake_reservations[reservation_id]
+    def add_reservation(self,
+                        reservation: ReservationSchema) -> str:
+        return ""
 
+    def update_reservation(self,
+                           reservation_id: str,
+                           reservation: UpdateReservationSchema) -> ReservationSchema:
+        return ReservationSchema()
 
-# adding another reservation to mongoDb
-def add_reservation(reservation):
-    fake_reservations.append(reservation)
-
-
-# updating reservations data by id
-def update_reservation(reservation_id, reservation):
-    fake_reservations.append(reservation)
-
-
-# deleting reservation by id
-def delete_reservation(reservation_id):
-    fake_reservations.remove(reservation_id)
+    def delete_reservation(self,
+                           reservation_id: str) -> ReservationSchema:
+        return ReservationSchema()

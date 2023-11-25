@@ -21,6 +21,7 @@ class UpdateReservationSchema(BaseModel):  # class contains changeable fields fo
     booking_date: datetime = None
     booking_status: BookStatusEnum = BookStatusEnum.default
 
+    # example
     class Config:
         schema_extra = {
             "example": {

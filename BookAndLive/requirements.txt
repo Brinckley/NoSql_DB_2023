@@ -6,3 +6,4 @@ pymongo==4.5.0
 motor==3.3.1
 elasticsearch==8.10.0
 elasticsearch-dsl==8.9.0
+pymemcache==4.0.0

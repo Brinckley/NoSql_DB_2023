@@ -1,29 +1,34 @@
+from fastapi import Depends
+
+from motor.motor_asyncio import AsyncIOMotorCollection
+
 from app.room.model import *
-
-# in memory temporary storage
-fake_rooms = []
+from app.repository.mongo_utils import get_mongo_client
 
 
-# getting all rooms for start page (list all rooms)
-def get_all_rooms():
-    return fake_rooms
+class RoomMongoRepository:
+    mongo_collection: AsyncIOMotorCollection
 
+    @staticmethod
+    def mongo_client_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_mongo_client)):
+        return RoomMongoRepository(mongo_collection)
 
-# getting room from mongoDb by ID
-def get_room(room_id):
-    return fake_rooms[room_id]
+    def get_all_rooms(self) -> list:
+        return [RoomSchema()]
 
+    def get_room(self,
+                 room_id: str) -> RoomSchema:
+        return RoomSchema()
 
-# adding another room to mongoDb
-def add_room(room):
-    fake_rooms.append(room)
+    def add_room(self,
+                 room: RoomSchema) -> str:
+        return ""
 
+    def update_room(self,
+                    room_id: str,
+                    room: UpdateRoomSchema) -> RoomSchema:
+        return RoomSchema()
 
-# updating rooms data by id
-def update_room(room_id, room):
-    fake_rooms.append(room)
-
-
-# deleting room by id
-def delete_room(room_id):
-    fake_rooms.remove(room_id)
+    def delete_room(self,
+                    room_id: str) -> RoomSchema:
+        return RoomSchema()

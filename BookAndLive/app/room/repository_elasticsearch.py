@@ -8,9 +8,14 @@ from app.repository.elasticsearch_utils import get_es_client
 from app.room.model import RoomSchema, UpdateRoomSchema
 
 
-class RoomSearchRepository:
+class RoomEsRepository:
     _elasticsearch_client: AsyncElasticsearch
     _elasticsearch_index: str
+
+    @staticmethod
+    def es_client_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_es_client)):
+        elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX')
+        return RoomEsRepository(elasticsearch_client, elasticsearch_index)
 
     def __int__(self, elasticsearch_client: AsyncElasticsearch, index: str):
         self._elasticsearch_client = elasticsearch_client
@@ -36,7 +41,7 @@ class RoomSearchRepository:
     async def find_by_city(self, city: str):  # logic not written yet
         return
 
-    @staticmethod
-    def es_client_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_es_client)):
-        elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX')
-        return RoomSearchRepository(elasticsearch_client, elasticsearch_index)
+    async def find_available_in_range(self,
+                                      time_from: datetime,
+                                      time_to: datetime):  # logic not written yet
+        return
