@@ -20,15 +20,3 @@ class ReservationSchema(BaseModel):
 class UpdateReservationSchema(BaseModel):  # class contains changeable fields for ReservationSchema
     booking_date: datetime = None
     booking_status: BookStatusEnum = BookStatusEnum.default
-
-    # example
-    class Config:
-        schema_extra = {
-            "example": {
-                  "_id": 1,
-                  "client_id": 1,
-                  "room_id": 1,
-                  "booking_date": "10.11.2023",
-                  "booking_status": "paid"
-            }
-        }

@@ -32,16 +32,73 @@ class RoomEsRepository:
     async def delete(self, room_id: str):
         await self._elasticsearch_client.delete(index=self._elasticsearch_index, id=room_id)
 
-    async def find_by_attributes(self, attributes: str):  # logic not written yet
-        return
+    async def find_by_attributes(self, attributes: str):
+        attributes = attributes.replace('+', ' ')
+        attributes_query = {
+            "query": {
+                "query_string": {
+                    "query": attributes,
+                    "default_field": "attributes",
+                },
+                'match': {
+                    "booking_status": True
+                }
+            }
+        }
+        rooms = await self.find_by_query(attributes_query)
+        return rooms
 
-    async def find_by_country(self, country: str):  # logic not written yet
-        return
+    async def find_by_country(self, country_name: str):
+        country_name_query = {
+            "query": {
+                "bool": {
+                    "filter": {
+                        {"booking_status": True},
+                        {"address.country": country_name},
+                    }
+                }
+            }
+        }
+        rooms = await self.find_by_query(country_name_query)
+        return rooms
 
-    async def find_by_city(self, city: str):  # logic not written yet
-        return
+    async def find_by_city(self, city_name: str):
+        city_name_query = {
+            "query": {
+                "bool": {
+                    "filter": {
+                        {"booking_status": True},
+                        {"address.city": city_name},
+                    }
+                }
+            }
+        }
+        rooms = await self.find_by_query(city_name_query)
+        return rooms
 
-    async def find_available_in_range(self,
-                                      time_from: datetime,
-                                      time_to: datetime):  # logic not written yet
-        return
+    async def find_available(self):
+        availability_query = {
+            "query": {
+                "match": {
+                    "booking_status": True
+                }
+            }
+        }
+        rooms = await self.find_by_query(availability_query)
+        return rooms
+
+    async def find_by_query(self, filter_query) -> list:
+        response = await self._elasticsearch_client.search(index=self._elasticsearch_index, query=filter_query,
+                                                           filter_path=['hits.hits._id', 'hits.hits._source'])
+        if 'hits' not in response.body:
+            return []
+        result = response.body['hits']['hits']
+        rooms = list(map(lambda room:
+                         RoomSchema(id=room['_id'],
+                                    description=room['_source'][''],
+                                    attributes=room['_source'][''],
+                                    booking_status=room['_source'][''],
+                                    country=room['_source']['address']['country'],
+                                    city=room['_source']['address']['city'],
+                                    address=room['_source']['address']['address']), result))
+        return rooms

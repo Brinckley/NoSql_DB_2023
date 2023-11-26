@@ -28,6 +28,3 @@ class ClientEsRepository:
 
     async def delete(self, client_id: str):
         await self._elasticsearch_client.delete(index=self._elasticsearch_index, id=client_id)
-
-    async def find_by_name(self, name: str):  # logic not written yet
-        return

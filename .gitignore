@@ -3,4 +3,5 @@
 **/lib/
 **/.idea
 data/
+venv/
 BookAndLive/test_main.http

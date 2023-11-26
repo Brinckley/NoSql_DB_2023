@@ -13,16 +13,14 @@ room_router = APIRouter(
 
 # Home page, listing all available rooms.
 @room_router.get(
-    "/from/{time_from}/to/{time_to}",
-    response_description="All rooms available at certain period",
+    "/",
+    response_description="All rooms available",
     response_model=list[RoomSchema]
 )
-async def list_available_rooms(time_from: datetime,
-                               time_to: datetime,
-                               es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
-    if (rooms := await es_repository.find_available_in_range(time_from, time_to)) is not None:
+async def list_available_rooms(es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_available()) is not None:
         return {"rooms": rooms}
-    raise HTTPException(status_code=404, detail=f'Room in period from : {time_from} to {time_to}')
+    raise HTTPException(status_code=404, detail=f'No available rooms')
 
 
 @room_router.get(
@@ -70,4 +68,41 @@ async def room_update(room_id: str,
         await es_repository.update(room_id, room)
         return {"room_upd": room_upd}
     raise HTTPException(status_code=404, detail=f'Room with ID : {room_id} already exists')
+
+
+@room_router.get(
+    "/city/{city_name}",
+    response_description="All rooms available in the given city",
+    response_model=list[RoomSchema]
+)
+async def list_available_rooms_city(city_name: str,
+                                    es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_by_city(city_name)) is not None:
+        return {"rooms": rooms}
+    raise HTTPException(status_code=404, detail=f'No available rooms in the given city: {city_name}')
+
+
+@room_router.get(
+    "/country/{country_name}",
+    response_description="All rooms available in the given country",
+    response_model=list[RoomSchema]
+)
+async def list_available_rooms_country(country_name: str,
+                                       es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_by_country(country_name)) is not None:
+        return {"rooms": rooms}
+    raise HTTPException(status_code=404, detail=f'No available rooms in the given country: {country_name}')
+
+
+@room_router.get(
+    "/attributes/{attributes_list}",
+    response_description="All rooms available in the given country",
+    response_model=list[RoomSchema]
+)
+async def list_available_rooms_attributes(attributes_list: str,
+                                          es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_by_attributes(attributes_list)) is not None:
+        return {"rooms": rooms}
+    raise HTTPException(status_code=404, detail=f'No available rooms in the given attributes: {attributes_list}')
+
 

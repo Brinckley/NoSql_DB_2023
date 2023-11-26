@@ -1,5 +1,6 @@
-from elasticsearch import AsyncElasticsearch
 import os
+
+from elasticsearch import AsyncElasticsearch
 
 elasticsearch_client: AsyncElasticsearch = None
 

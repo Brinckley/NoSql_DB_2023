@@ -83,13 +83,25 @@ async def reservations_by_client_id(client_id: str,
 async def reservations_from_to(time_from: datetime,
                                time_to: datetime,
                                es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
-    if (reservations := await es_repository.find_by_range(time_from, time_to)) is not None:
+    if len((reservations := await es_repository.find_by_range(time_from, time_to))):
         return {"reservations": reservations}
     raise HTTPException(status_code=404, detail=f'No reservations in this period: from {time_from}, to {time_to}')
 
 
 @reservation_router.get(
-    "/room/{room_id}",
+    "/booking_time/{booking_time}",
+    response_description="All reservations in the given period",
+    response_model=list[ReservationSchema]
+)
+async def reservations_by_booking_time(booking_time: datetime,
+                                       es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
+    if len((reservations := await es_repository.find_by_booking_date(booking_time))):
+        return {"reservations": reservations}
+    raise HTTPException(status_code=404, detail=f'No reservations for this date: {booking_time}')
+
+
+@reservation_router.get(
+    "/rooms/{room_id}",
     response_description="All reservations for this room",
     response_model=list[ReservationSchema]
 )
@@ -98,7 +110,7 @@ async def reservations_by_room_id(room_id: str,
     if not ObjectId.is_valid(room_id):
         raise HTTPException(status_code=400, detail='Bad Request')
 
-    if (reservations := await es_repository.find_by_room_id(room_id)) is not None:
+    if len((reservations := await es_repository.find_by_room_id(room_id))):
         return {"reservations": reservations}
     raise HTTPException(status_code=404, detail=f'No such room with ID: {room_id}')
 

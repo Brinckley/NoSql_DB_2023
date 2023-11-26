@@ -13,25 +13,10 @@ class RoomSchema(BaseModel):
     address: Address
     description: str
     attributes: str
+    booking_status: bool
 
 
 class UpdateRoomSchema(BaseModel):  # class contains changeable fields for RoomSchema
     description: str
     attributes: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                  "_id": 1,
-                  "address": [
-                      {
-                          "country": "Russian Federation",
-                          "city": "Moscow",
-                          "address": "Volokolamskoe higway, building 4"
-                      }
-                  ],
-                  "room_id": 1,
-                  "booking_date": "10.11.2023",
-                  "booking_status": "paid"
-            }
-        }
+    booking_status: bool
