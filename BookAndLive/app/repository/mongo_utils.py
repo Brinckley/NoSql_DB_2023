@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from typing import Any
 
@@ -24,13 +26,15 @@ async def get_mongo_reservation() -> AsyncIOMotorCollection:
 
 
 async def connect_and_init_db():
+    print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU')
     global db_client
     mongo_uri = os.getenv('MONGO_URI')
+    print(f"URI : {mongo_uri}")
     mongo_db = os.getenv('MONGO_DB')
     mongo_collection_client = os.getenv('MONGO_COLLECTION_CLIENT')
     mongo_collection_reservation = os.getenv('MONGO_COLLECTION_RESERVATION')
     try:
-        db_client = AsyncIOMotorClient()
+        db_client = AsyncIOMotorClient(mongo_uri)
         await db_client.server_info()
         print(f'Connected to mongo with uri {mongo_uri}')
         if mongo_db not in await db_client.list_database_names():

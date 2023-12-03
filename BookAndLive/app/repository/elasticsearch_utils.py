@@ -1,4 +1,5 @@
 import os
+import ssl
 
 from elasticsearch import AsyncElasticsearch
 
@@ -14,7 +15,10 @@ async def connect_init_elasticsearch():
     elasticsearch_uri = os.getenv('ELASTICSEARCH_URI')
 
     try:
-        elasticsearch_client = AsyncElasticsearch(elasticsearch_uri)
+        elasticsearch_client = AsyncElasticsearch(
+            hosts="http://localhost:9200",
+            basic_auth=('elastic', 'od+Ll5B2P57hXFZrQbR9'),
+            verify_certs=False)
         await elasticsearch_client.info()
         print(f'Connected to elasticsearch.py with uri {elasticsearch_uri}')
     except Exception as ex:

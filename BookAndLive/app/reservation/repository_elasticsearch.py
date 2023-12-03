@@ -12,14 +12,14 @@ class ReservationEsRepository:
     _elasticsearch_client: AsyncElasticsearch
     _elasticsearch_index: str
 
-    @staticmethod
-    def es_reservation_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_es_client)):
-        elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX')
-        return ReservationEsRepository(elasticsearch_client, elasticsearch_index)
-
-    def __int__(self, elasticsearch_client: AsyncElasticsearch, index: str):
+    def __init__(self, index: str, elasticsearch_client: AsyncElasticsearch):
         self._elasticsearch_client = elasticsearch_client
         self._elasticsearch_index = index
+
+    @staticmethod
+    def es_reservation_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_es_client)):
+        elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX_RESERVATION')
+        return ReservationEsRepository(elasticsearch_index, elasticsearch_client)
 
     async def create(self, reservation_id: str, reservation: ReservationSchema):
         await self._elasticsearch_client.create(index=self._elasticsearch_index, id=reservation_id,

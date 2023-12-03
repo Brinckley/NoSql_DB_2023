@@ -40,8 +40,8 @@ async def client_by_id(client_id: str,
     response_model=int
 )
 async def client_add(client_instance: ClientSchema,
-                     es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory()),
-                     mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory())):
+                     es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
+                     mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)):
     if (client_id := await mongo_repository.add_client(client_instance)) is not None:
         await es_repository.create(client_id, client_instance)
         return {"client_id": client_id}
@@ -55,8 +55,8 @@ async def client_add(client_instance: ClientSchema,
 )
 async def client_update(client_id: str,
                         client_upd: UpdateClientSchema,
-                        es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory()),
-                        mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory())):
+                        es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
+                        mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)):
     if not ObjectId.is_valid(client_id):
         raise HTTPException(status_code=400, detail='Bad Request')
 
@@ -72,8 +72,8 @@ async def client_update(client_id: str,
         response_model=ClientSchema
 )
 async def delete_client(client_id: str,
-                        es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory()),
-                        mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory())):
+                        es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
+                        mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)):
     if not ObjectId.is_valid(client_id):
         raise HTTPException(status_code=400, detail='Bad Request')
 

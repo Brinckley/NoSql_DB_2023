@@ -3,14 +3,21 @@ version: '3'
 services:
 
   app:
+    container_name: app
     build: 
       context: ./BookAndLive
     ports:
       - '8085:8085'
     networks: [ "pynet" ]
     environment:
-      - MONGO_URI=mongodb://mongo_db:27017/
+      - MONGO_URI=mongodb://localhost:27017
       - MEMCACHED_URI=memcached_node_01:11211
+      - MONGO_COLLECTION_CLIENT=client
+      - MONGO_COLLECTION_RESERVATION=reservation
+      - ELASTICSEARCH_INDEX_CLIENT=client
+      - ELASTICSEARCH_INDEX_RESERVATION=reservation
+      - ELASTICSEARCH_INDEX_ROOM=room
+      - ELASTICSEARCH_URI=http://elastic:od+Ll5B2P57hXFZrQbR9@localhost:9200
     depends_on:
       mongo_db:
         condition: service_started
@@ -23,32 +30,12 @@ services:
     ports:
       - '27017:27017'
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo_db:27017 --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 30s
       timeout: 10s
       retries: 5
     volumes:
       - ./data/mongo:/data/db
-  
-  elasticsearch:
-    container_name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
-    ports:
-      - 9200:9200
-    volumes:
-      - ./data_elasticsearch/esdata1:/var/lib/elasticsearch/esdata1
-    environment:
-      - cluster.name=docker-cluster
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
-      - xpack.security.enabled=false
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    restart: always
-    networks: [ "pynet" ]
 
   memcached_node_01:
     image: memcached

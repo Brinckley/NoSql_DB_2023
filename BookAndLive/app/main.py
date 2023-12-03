@@ -8,9 +8,9 @@ app = FastAPI(
     title="Book & Live"
 )
 
+app.add_event_handler("startup", startup_handling)
+app.add_event_handler("shutdown", shutdown_handling)
+
 app.include_router(room_router)
 app.include_router(client_router)
 app.include_router(reservation_router)
-
-app.add_event_handler("startup", startup_handling)
-app.add_event_handler("shutdown", shutdown_handling)
