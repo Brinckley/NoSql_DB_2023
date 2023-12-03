@@ -2,10 +2,59 @@ version: '3'
 
 services:
 
-  app:
+  api:
     build: 
       context: ./BookAndLive
-    networks: [ "pynet" ]
+    ports:
+      - 8000:8000
+    environment:
+      - MONGO_URI=mongodb://mongo_db:27017
+      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
+      - MEMCACHED_URI=memcached_node_01:11211,memcached_node_02:11211,memcached_node_03:11211
+      - MONGO_DB=database
+      - MONGO_COLLECTION=defcollection
+      - MONGO_COLLECTION_CLIENT=mongo_index_client
+      - MONGO_COLLECTION_RESERVATION=mongo_index_reservation
+      - ELASTICSEARCH_INDEX_CLIENT=es_index_client
+      - ELASTICSEARCH_INDEX_RESERVATION=es_index_reservation
+      - ELASTICSEARCH_INDEX_ROOM=es_index_room
+    depends_on:
+      elasticsearch_db:
+        condition: service_healthy
+      mongo_db:
+        condition: service_started
 
-networks:
-    pynet:
+  mongo_db:
+    image: mongo:7.0.2
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=database
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./data/mongo:/data/db
+
+  elasticsearch_db:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+  memcached_node_01:
+    image: memcached
+
+  memcached_node_02:
+    image: memcached
+
+  memcached_node_03:
+    image: memcached

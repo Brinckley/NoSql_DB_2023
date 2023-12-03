@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Body
-
+from app.room.repository_mongo import *
 from bson import ObjectId
+from app.room.repository_elasticsearch import *
 from app.room.model import *
 
 room_router = APIRouter(
@@ -16,7 +17,9 @@ room_router = APIRouter(
     response_description="All rooms available",
     response_model=list[RoomSchema]
 )
-async def list_available_rooms():
+async def list_available_rooms(es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_available()) is not None:
+        return {"rooms": rooms}
     raise HTTPException(status_code=404, detail=f'No available rooms')
 
 
@@ -25,9 +28,13 @@ async def list_available_rooms():
     response_description="Get a single room by id",
     response_model=RoomSchema
 )
-async def room_by_id(room_id: str):
+async def room_by_id(room_id: str,
+                     mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_client_factory)):
     if not ObjectId.is_valid(room_id):
         raise HTTPException(status_code=400, detail='Bad Request')
+
+    if (room := await mongo_repository.get_room(room_id)) is not None:
+        return {"room": room}
     raise HTTPException(status_code=404, detail=f'Room with ID : {room_id} not found')
 
 
@@ -36,8 +43,13 @@ async def room_by_id(room_id: str):
     response_description="New room id",
     response_model=int
 )
-async def room_add(room: RoomSchema):
-    raise HTTPException(status_code=404, detail=f'Room with ID : already exists')
+async def room_add(room: RoomSchema,
+                   mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_client_factory),
+                   es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (room_id := await mongo_repository.add_room(room)) is not None:
+        await es_repository.create(room_id, room)
+        return {"room_id": room_id}
+    raise HTTPException(status_code=404, detail=f'Room with ID : {room_id} already exists')
 
 
 @room_router.put(
@@ -46,10 +58,15 @@ async def room_add(room: RoomSchema):
     response_model=RoomSchema
 )
 async def room_update(room_id: str,
-                      room: UpdateRoomSchema):
+                      room: UpdateRoomSchema,
+                      mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_client_factory),
+                      es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
     if not ObjectId.is_valid(room_id):
         raise HTTPException(status_code=400, detail='Bad Request')
 
+    if (room_upd := await mongo_repository.update_room(room_id, room)) is not None:
+        await es_repository.update(room_id, room)
+        return {"room_upd": room_upd}
     raise HTTPException(status_code=404, detail=f'Room with ID : {room_id} already exists')
 
 
@@ -58,7 +75,10 @@ async def room_update(room_id: str,
     response_description="All rooms available in the given city",
     response_model=list[RoomSchema]
 )
-async def list_available_rooms_city(city_name: str):
+async def list_available_rooms_city(city_name: str,
+                                    es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_by_city(city_name)) is not None:
+        return {"rooms": rooms}
     raise HTTPException(status_code=404, detail=f'No available rooms in the given city: {city_name}')
 
 
@@ -67,7 +87,10 @@ async def list_available_rooms_city(city_name: str):
     response_description="All rooms available in the given country",
     response_model=list[RoomSchema]
 )
-async def list_available_rooms_country(country_name: str):
+async def list_available_rooms_country(country_name: str,
+                                       es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_by_country(country_name)) is not None:
+        return {"rooms": rooms}
     raise HTTPException(status_code=404, detail=f'No available rooms in the given country: {country_name}')
 
 
@@ -76,5 +99,8 @@ async def list_available_rooms_country(country_name: str):
     response_description="All rooms available in the given country",
     response_model=list[RoomSchema]
 )
-async def list_available_rooms_attributes(attributes_list: str):
+async def list_available_rooms_attributes(attributes_list: str,
+                                          es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
+    if (rooms := await es_repository.find_by_attributes(attributes_list)) is not None:
+        return {"rooms": rooms}
     raise HTTPException(status_code=404, detail=f'No available rooms in the given attributes: {attributes_list}')
