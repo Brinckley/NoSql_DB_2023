@@ -21,7 +21,7 @@ class RoomEsRepository:
         elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX_ROOM')
         return RoomEsRepository(elasticsearch_index, elasticsearch_client)
 
-    async def create(self, room_id: str, room: RoomSchema):
+    async def create(self, room_id: str, room: UpdateRoomSchema):
         await self._elasticsearch_client.create(index=self._elasticsearch_index, id=room_id,
                                                 document=dict(room))
 

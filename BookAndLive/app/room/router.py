@@ -41,9 +41,9 @@ async def room_by_id(room_id: str,
 @room_router.post(
     "/",
     response_description="New room id",
-    response_model=int
+    response_model=str
 )
-async def room_add(room: RoomSchema,
+async def room_add(room: UpdateRoomSchema,
                    mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_client_factory),
                    es_repository: RoomEsRepository = Depends(RoomEsRepository.es_client_factory)):
     if (room_id := await mongo_repository.add_room(room)) is not None:

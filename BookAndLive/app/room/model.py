@@ -1,5 +1,5 @@
 from typing_extensions import TypedDict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Address(TypedDict, total=False):
@@ -9,7 +9,7 @@ class Address(TypedDict, total=False):
 
 
 class RoomSchema(BaseModel):
-    id: int = Field(..., alias='_id')
+    id: str
     address: Address
     description: str
     attributes: str
@@ -17,6 +17,7 @@ class RoomSchema(BaseModel):
 
 
 class UpdateRoomSchema(BaseModel):  # class contains changeable fields for RoomSchema
+    address: Address
     description: str
     attributes: str
     booking_status: bool

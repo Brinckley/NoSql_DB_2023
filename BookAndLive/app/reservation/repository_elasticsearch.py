@@ -21,7 +21,7 @@ class ReservationEsRepository:
         elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX_RESERVATION')
         return ReservationEsRepository(elasticsearch_index, elasticsearch_client)
 
-    async def create(self, reservation_id: str, reservation: ReservationSchema):
+    async def create(self, reservation_id: str, reservation: UpdateReservationSchema):
         await self._elasticsearch_client.create(index=self._elasticsearch_index, id=reservation_id,
                                                 document=dict(reservation))
 

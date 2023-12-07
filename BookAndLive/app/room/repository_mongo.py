@@ -21,7 +21,7 @@ class RoomMongoRepository:
         return RoomSchema()
 
     def add_room(self,
-                 room: RoomSchema) -> str:
+                 room: UpdateRoomSchema) -> str:
         return ""
 
     def update_room(self,

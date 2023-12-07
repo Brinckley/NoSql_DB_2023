@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class BookStatusEnum(str, Enum):
@@ -10,13 +10,15 @@ class BookStatusEnum(str, Enum):
 
 
 class ReservationSchema(BaseModel):
-    id: int = Field(..., alias='_id')
-    client_id: int = Field(...)
-    room_id: int = Field(...)
+    id: str
+    client_id: str
+    room_id: str
     booking_date: datetime = None
     booking_status: BookStatusEnum = BookStatusEnum.default
 
 
 class UpdateReservationSchema(BaseModel):  # class contains changeable fields for ReservationSchema
+    client_id: str
+    room_id: str
     booking_date: datetime = None
     booking_status: BookStatusEnum = BookStatusEnum.default

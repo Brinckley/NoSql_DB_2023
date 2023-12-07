@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 
 from bson import ObjectId
 from app.cache.memcached_utils import *
@@ -18,12 +18,12 @@ client_router = APIRouter(
     response_description="Found client profile",
     response_model=ClientSchema
 )
-async def client_by_id(client_id: int,  # need to think about type
+async def client_by_id(client_id: str,  # need to think about type
                        mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory),
                        memcached_client: HashClient = Depends(get_memcached_client)):
     if not ObjectId.is_valid(client_id):
         raise HTTPException(status_code=400, detail='Bad Request')
-
+    print("dsf")
     client = memcached_client.get(client_id)
     if client is not None:
         return {"client": client}
@@ -37,9 +37,9 @@ async def client_by_id(client_id: int,  # need to think about type
 @client_router.post(
     "/",
     response_description="Created client ID",
-    response_model=int
+    response_model=str
 )
-async def client_add(client_instance: ClientSchema,
+async def client_add(client_instance: UpdateClientSchema,
                      es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
                      mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)):
     if (client_id := await mongo_repository.add_client(client_instance)) is not None:
@@ -53,7 +53,7 @@ async def client_add(client_instance: ClientSchema,
     response_description="Updated client",
     response_model=ClientSchema
 )
-async def client_update(client_id: int,
+async def client_update(client_id: str,
                         client_upd: UpdateClientSchema,
                         es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
                         mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)):
@@ -71,7 +71,7 @@ async def client_update(client_id: int,
     response_description="Deleted client id",
     response_model=ClientSchema
 )
-async def delete_client(client_id: int,
+async def delete_client(client_id: str,
                         es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
                         mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)):
     if not ObjectId.is_valid(client_id):

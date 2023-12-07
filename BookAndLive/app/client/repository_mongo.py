@@ -25,7 +25,7 @@ class ClientMongoRepository:
         return map_client(db_client)
 
     async def add_client(self,
-                         client: ClientSchema) -> str:
+                         client: UpdateClientSchema) -> str:
         insert_result = await self._mongo_collection.insert_one(dict(client))
         return str(insert_result.inserted_id)
 

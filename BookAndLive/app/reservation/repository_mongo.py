@@ -32,7 +32,7 @@ class ReservationMongoRepository:
         return map_reservation(db_reservation)
 
     async def add_reservation(self,
-                              reservation: ReservationSchema) -> str:
+                              reservation: UpdateReservationSchema) -> str:
         insert_result = await self._mongo_collection.insert_one(dict(reservation))
         return str(insert_result.inserted_id)
 

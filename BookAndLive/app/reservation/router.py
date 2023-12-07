@@ -34,7 +34,7 @@ async def reservation_by_id(reservation_id: str,
     response_description="Added reservation ID",
     response_model=str
 )
-async def reservation_add(reservation: ReservationSchema,
+async def reservation_add(reservation: UpdateReservationSchema,
                           mongo_repository: ReservationMongoRepository = Depends(ReservationMongoRepository.mongo_reservation_factory),
                           es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
     if (reservation_id := await mongo_repository.add_reservation(reservation)) is not None:

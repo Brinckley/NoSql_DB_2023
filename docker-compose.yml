@@ -48,7 +48,7 @@ services:
       - xpack.security.enabled=false
       - discovery.type=single-node
     volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - ./data/elasticsearch:/data/elasticsearch
 
   memcached_node_01:
     image: memcached

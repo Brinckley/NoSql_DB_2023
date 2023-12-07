@@ -20,7 +20,7 @@ class ClientEsRepository:
         elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX_CLIENT')
         return ClientEsRepository(elasticsearch_index, elasticsearch_client)
 
-    async def create(self, client_id: str, client: ClientSchema):
+    async def create(self, client_id: str, client: UpdateClientSchema):
         await self._elasticsearch_client.create(index=self._elasticsearch_index, id=client_id, document=dict(client))
 
     async def update(self, client_id: str, client: UpdateClientSchema):
