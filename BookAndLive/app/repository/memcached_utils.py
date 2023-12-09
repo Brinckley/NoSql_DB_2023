@@ -2,7 +2,7 @@ from pymemcache import HashClient
 from pymemcache.client.base import Client
 import os
 
-from app.cache.json_serializer import JsonSerializer
+from app.repository.json_serializer import JsonSerializer
 
 memcached_client: Client = None
 

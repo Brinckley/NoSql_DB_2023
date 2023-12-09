@@ -9,26 +9,29 @@ from app.repository.mongo_utils import get_db_collection
 class RoomMongoRepository:
     mongo_collection: AsyncIOMotorCollection
 
+    def __init__(self, db_collection: AsyncIOMotorCollection):
+        self._db_collection = db_collection
+
     @staticmethod
     def mongo_client_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_db_collection)):
         return RoomMongoRepository(mongo_collection)
 
-    def get_all_rooms(self) -> list:
+    async def get_all_rooms(self) -> list[RoomSchema]:
         return [RoomSchema()]
 
-    def get_room(self,
+    async def get_room_by_id(self,
                  room_id: str) -> RoomSchema:
         return RoomSchema()
 
-    def add_room(self,
+    async def add_room(self,
                  room: UpdateRoomSchema) -> str:
         return ""
 
-    def update_room(self,
+    async def update_room(self,
                     room_id: str,
                     room: UpdateRoomSchema) -> RoomSchema:
         return RoomSchema()
 
-    def delete_room(self,
+    async def delete_room(self,
                     room_id: str) -> RoomSchema:
         return RoomSchema()
