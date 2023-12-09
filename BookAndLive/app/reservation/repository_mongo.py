@@ -15,8 +15,14 @@ class ReservationMongoRepository:
         self._mongo_collection = mongo_collection
 
     @staticmethod
-    def mongo_reservation_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_db_collection)):
+    def mongo_reservation_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_mongo_reservation)):
         return ReservationMongoRepository(mongo_collection)
+    
+    async def get_all(self) -> list[ReservationSchema]:
+        db_reservation = []
+        async for reservation in self._mongo_collection.find():
+            db_reservation.append(map_reservation(reservation))
+        return db_reservation
 
     async def get_all_reservations_by_client_id(self,
                                                 client_id: str) -> list[ReservationSchema]:
@@ -33,16 +39,18 @@ class ReservationMongoRepository:
 
     async def add_reservation(self,
                               reservation: UpdateReservationSchema) -> str:
+        print("add reservation")
         insert_result = await self._mongo_collection.insert_one(dict(reservation))
         return str(insert_result.inserted_id)
 
     async def update_reservation(self,
                                  reservation_id: str,
                                  reservation: UpdateReservationSchema) -> ReservationSchema | None:
-        db_reservation = await self._mongo_collection.find_one_and_replace(get_filter(reservation_id))
-        return ReservationSchema()
+        db_reservation = await self._mongo_collection.find_one_and_replace(get_filter(reservation_id), dict(reservation))
+        print(f'up: {db_reservation}')
+        return map_reservation(db_reservation)
 
     async def delete_reservation(self,
                                  reservation_id: str) -> ReservationSchema | None:
         db_reservation = await self._mongo_collection.find_one_and_delete(get_filter(reservation_id))
-        return ReservationSchema()
+        return map_reservation(db_reservation)

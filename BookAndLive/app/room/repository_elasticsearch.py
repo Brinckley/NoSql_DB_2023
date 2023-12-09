@@ -17,9 +17,9 @@ class RoomEsRepository:
         self._elasticsearch_index = index
 
     @staticmethod
-    def es_client_factory(elasticsearch_client: AsyncElasticsearch = Depends(get_elasticsearch_client)):
+    def es_room_factory(elasticsearch_room: AsyncElasticsearch = Depends(get_elasticsearch_client)):
         elasticsearch_index = os.getenv('ELASTICSEARCH_INDEX_ROOM')
-        return RoomEsRepository(elasticsearch_index, elasticsearch_client)
+        return RoomEsRepository(elasticsearch_index, elasticsearch_room)
 
     async def create(self, room_id: str, room: UpdateRoomSchema):
         await self._elasticsearch_client.create(index=self._elasticsearch_index, id=room_id,

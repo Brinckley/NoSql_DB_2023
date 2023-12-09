@@ -15,8 +15,14 @@ class ClientMongoRepository:
         self._mongo_collection = mongo_collection
 
     @staticmethod
-    def mongo_client_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_db_collection)):
+    def mongo_client_factory(mongo_collection: AsyncIOMotorCollection = Depends(get_mongo_client)):
         return ClientMongoRepository(mongo_collection)
+    
+    async def get_all(self) -> list[ClientSchema]:
+        db_client = []
+        async for client in self._mongo_collection.find():
+            db_client.append(map_client(client))
+        return db_client
 
     async def get_client(self,
                          client_id: str) -> ClientSchema | None:

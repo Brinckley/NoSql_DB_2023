@@ -14,6 +14,7 @@ services:
       - MONGO_DB=database
       - MONGO_COLLECTION=defcollection
       - MONGO_COLLECTION_CLIENT=mongo_index_client
+      - MONGO_COLLECTION_ROOM=mongo_index_room
       - MONGO_COLLECTION_RESERVATION=mongo_index_reservation
       - ELASTICSEARCH_INDEX_CLIENT=es_index_client
       - ELASTICSEARCH_INDEX_RESERVATION=es_index_reservation

@@ -17,7 +17,7 @@ class RoomSchema(BaseModel):
 
 
 class UpdateRoomSchema(BaseModel):  # class contains changeable fields for RoomSchema
-    address: Address
+    full_address: Address
     description: str
     attributes: str
     booking_status: bool

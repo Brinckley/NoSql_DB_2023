@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pymemcache import HashClient
 
 from bson import ObjectId
 from app.cache.memcached_utils import *
@@ -12,6 +13,11 @@ client_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+@client_router.get(
+    "/"
+)
+async def get_all_client(mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory)) -> list[ClientSchema]:
+    return await mongo_repository.get_all()
 
 @client_router.get(
     "/{client_id}",
@@ -20,24 +26,26 @@ client_router = APIRouter(
 )
 async def client_by_id(client_id: str,  # need to think about type
                        mongo_repository: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory),
-                       memcached_client: HashClient = Depends(get_memcached_client)):
+                       memcached_client: HashClient = Depends(get_memcached_client)
+                       ):
     if not ObjectId.is_valid(client_id):
         raise HTTPException(status_code=400, detail='Bad Request')
-    print("dsf")
+    
     client = memcached_client.get(client_id)
     if client is not None:
         return {"client": client}
+    
     if (client := await mongo_repository.get_client(str(client_id))) is not None:
         return {"client": client}
+    
     memcached_client.add(client_id, client)
-
     raise HTTPException(status_code=404, detail=f'Client with ID : {client_id} not found')
 
 
 @client_router.post(
     "/",
-    response_description="Created client ID",
-    response_model=str
+    response_description="Created client ID"
+    #response_model=str
 )
 async def client_add(client_instance: UpdateClientSchema,
                      es_repository: ClientEsRepository = Depends(ClientEsRepository.es_client_factory),
@@ -45,6 +53,7 @@ async def client_add(client_instance: UpdateClientSchema,
     if (client_id := await mongo_repository.add_client(client_instance)) is not None:
         await es_repository.create(client_id, client_instance)
         return {"client_id": client_id}
+    
     raise HTTPException(status_code=404, detail="Client already exists")
 
 
@@ -63,6 +72,7 @@ async def client_update(client_id: str,
     if (updated_client := await mongo_repository.update_client(str(client_id), client_upd)) is not None:
         await es_repository.update(str(client_id), client_upd)
         return {"updated_client": updated_client}
+    
     raise HTTPException(status_code=404, detail=f'Client with ID : {client_id} not found')
 
 
@@ -80,4 +90,5 @@ async def delete_client(client_id: str,
     if (deleted_client := await mongo_repository.delete_client(str(client_id))) is not None:
         await es_repository.delete(str(client_id))
         return {"client_id": deleted_client}
+    
     raise HTTPException(status_code=404, detail=f'Client with ID : {client_id} not found')
