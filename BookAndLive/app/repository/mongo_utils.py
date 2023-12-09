@@ -39,6 +39,7 @@ async def connect_and_init_mongo():
         print(f'Cant connect to mongo: {ex}')
 
 
+
 async def close_db_connect():
     global db_client
     if db_client is None:
@@ -47,18 +48,18 @@ async def close_db_connect():
 
 
 def get_filter(id: str) -> dict:
-    return {'id': ObjectId(id)}
+    return {'_id': ObjectId(id)}
 
 
 def map_client(client: Any) -> ClientSchema | None:
     if client is None:
         return None
-    return ClientSchema(id=str(client['id']), name=client['name'], email=client['email'])
+    return ClientSchema(id=str(client['_id']), name=client['name'], email=client['email'])
 
 
 def map_reservation(reservation: Any) -> ReservationSchema | None:
     if reservation is None:
         return None
-    return ReservationSchema(id=str(reservation['id']), client_id=reservation['client_id'],
+    return ReservationSchema(id=str(reservation['_id']), client_id=reservation['client_id'],
                              room_id=reservation['room_id'], booking_date=reservation['booking_gate'],
                              booking_status=reservation['booking_status'])

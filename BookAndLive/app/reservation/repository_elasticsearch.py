@@ -72,7 +72,7 @@ class ReservationEsRepository:
         booking_date_query = {
             "query": {
                 "match": {
-                    "id": room_id
+                    "_id": room_id
                 }
             }
         }

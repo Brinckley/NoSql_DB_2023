@@ -94,7 +94,7 @@ class RoomEsRepository:
             return []
         result = response.body['hits']['hits']
         rooms = list(map(lambda room:
-                         RoomSchema(id=room['id'],
+                         RoomSchema(id=room['_id'],
                                     description=room['_source'][''],
                                     attributes=room['_source'][''],
                                     booking_status=room['_source'][''],
