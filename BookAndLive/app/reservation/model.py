@@ -17,7 +17,7 @@ class ReservationSchema(BaseModel):
     booking_status: BookStatusEnum = BookStatusEnum.default
 
 
-class UpdateReservationSchema(BaseModel):  # class contains changeable fields for ReservationSchema
+class UpdateReservationSchema(BaseModel):
     client_id: str
     room_id: str
     booking_date: datetime = None

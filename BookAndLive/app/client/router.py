@@ -6,8 +6,8 @@ from app.client.repository_elasticsearch import *
 from app.client.repository_mongo import *
 
 client_router = APIRouter(
-    prefix="/client",
-    tags=["client"],
+    prefix="/clients",
+    tags=["clients"],
     responses={404: {"description": "Not found"}},
 )
 

@@ -1,11 +1,10 @@
 import os
 from fastapi import Depends
-from datetime import datetime
 
 from elasticsearch import AsyncElasticsearch
 
 from app.repository.elasticsearch_utils import get_elasticsearch_client
-from app.room.model import RoomSchema, UpdateRoomSchema
+from app.room.model import RoomSchema, UpdateRoomSchema, Address
 
 
 class RoomEsRepository:
@@ -32,17 +31,13 @@ class RoomEsRepository:
     async def delete(self, room_id: str):
         await self._elasticsearch_client.delete(index=self._elasticsearch_index, id=room_id)
 
-    async def find_by_attributes(self, attributes: str):
-        attributes = attributes.replace('+', ' ')
+    async def find_by_attribute(self, attribute: str):
         attributes_query = {
-            "query": {
-                "query_string": {
-                    "query": attributes,
-                    "default_field": "attributes",
-                },
-                'match': {
-                    "booking_status": True
-                }
+            "bool": {
+                "must": [
+                    {"match": {"booking_status": True}},
+                    {"term": {"attributes": attribute}},
+                ]
             }
         }
         rooms = await self.find_by_query(attributes_query)
@@ -50,13 +45,11 @@ class RoomEsRepository:
 
     async def find_by_country(self, country_name: str):
         country_name_query = {
-            "query": {
-                "bool": {
-                    "filter": {
-                        {"booking_status": True},
-                        {"address.country": country_name},
-                    }
-                }
+            "bool": {
+                "must": [
+                    {"match": {"booking_status": True}},
+                    {"match": {"full_address.country": country_name}},
+                ]
             }
         }
         rooms = await self.find_by_query(country_name_query)
@@ -64,27 +57,14 @@ class RoomEsRepository:
 
     async def find_by_city(self, city_name: str):
         city_name_query = {
-            "query": {
-                "bool": {
-                    "filter": {
-                        {"booking_status": True},
-                        {"address.city": city_name},
-                    }
-                }
+            "bool": {
+                "must": [
+                    {"match": {"booking_status": True}},
+                    {"match": {"full_address.city": city_name}},
+                ]
             }
         }
         rooms = await self.find_by_query(city_name_query)
-        return rooms
-
-    async def find_available(self):
-        availability_query = {
-            "query": {
-                "match": {
-                    "booking_status": True
-                }
-            }
-        }
-        rooms = await self.find_by_query(availability_query)
         return rooms
 
     async def find_by_query(self, filter_query) -> list:
@@ -95,10 +75,12 @@ class RoomEsRepository:
         result = response.body['hits']['hits']
         rooms = list(map(lambda room:
                          RoomSchema(id=room['_id'],
-                                    description=room['_source'][''],
-                                    attributes=room['_source'][''],
-                                    booking_status=room['_source'][''],
-                                    country=room['_source']['address']['country'],
-                                    city=room['_source']['address']['city'],
-                                    address=room['_source']['address']['address']), result))
+                                    description=room['_source']['description'],
+                                    attributes=room['_source']['attributes'],
+                                    booking_status=room['_source']['booking_status'],
+                                    full_address=Address(
+                                        country=room['_source']['full_address']['country'],
+                                        city=room['_source']['full_address']['city'],
+                                        address=room['_source']['full_address']['address']
+                                    )), result))
         return rooms

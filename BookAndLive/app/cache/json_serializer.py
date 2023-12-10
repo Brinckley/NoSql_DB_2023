@@ -1,5 +1,6 @@
 import json
 
+
 class JsonSerializer(object):
     def serialize(self, key, value):
         if isinstance(value, str):

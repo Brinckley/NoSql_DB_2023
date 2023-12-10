@@ -10,7 +10,7 @@ class Address(TypedDict, total=False):
 
 class RoomSchema(BaseModel):
     id: str
-    address: Address
+    full_address: Address
     description: str
     attributes: str
     booking_status: bool

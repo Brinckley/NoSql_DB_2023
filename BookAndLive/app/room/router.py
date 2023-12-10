@@ -6,8 +6,8 @@ from app.room.repository_elasticsearch import *
 from app.room.repository_mongo import *
 
 room_router = APIRouter(
-    prefix="/room",
-    tags=["room"],
+    prefix="/rooms",
+    tags=["rooms"],
     responses={404: {"description": "Not found"}},
 )
 
@@ -92,12 +92,12 @@ async def list_available_rooms_country(country_name: str,
 
 
 @room_router.get(
-    "/attributes/{attributes_list}",
-    response_description="All rooms available in the given country"
+    "/attributes/{attribute}",
+    response_description="All rooms available with the given attribute"
 )
-async def list_available_rooms_attributes(attributes_list: str,
+async def list_available_rooms_attributes(attribute: str,
                                           es_repository: RoomEsRepository = Depends(RoomEsRepository.es_room_factory)):
-    if (rooms := await es_repository.find_by_attributes(attributes_list)) is not None:
+    if (rooms := await es_repository.find_by_attribute(attribute)) is not None:
         return {"rooms": rooms}
     
-    raise HTTPException(status_code=404, detail=f'No available rooms in the given attributes: {attributes_list}')
+    raise HTTPException(status_code=404, detail=f'No available rooms in the given attribute: {attribute}')

@@ -34,10 +34,8 @@ class ReservationEsRepository:
 
     async def find_by_client_id(self, client_id: str) -> list:
         name_query = {
-            "query": {
-                "match": {
-                    "client_id": client_id
-                }
+            "match": {
+                "client_id": client_id
             }
         }
         reservations = await self.find_by_query(name_query)
@@ -45,10 +43,8 @@ class ReservationEsRepository:
 
     async def find_by_booking_date(self, booking_date: datetime) -> list:
         booking_date_query = {
-            "query": {
-                "match": {
-                    "booking_date": booking_date
-                }
+            "match": {
+                "booking_date": booking_date
             }
         }
         reservations = await self.find_by_query(booking_date_query)
@@ -56,12 +52,10 @@ class ReservationEsRepository:
 
     async def find_by_range(self, left_date: datetime, right_date: datetime) -> list:
         range_date_query = {
-            "query": {
-                "range": {
-                    "datetime": {
-                        "gte": left_date,
-                        "lte": right_date,
-                    }
+            "range": {
+                "booking_date": {
+                    "gte": left_date,
+                    "lte": right_date,
                 }
             }
         }
@@ -70,10 +64,8 @@ class ReservationEsRepository:
 
     async def find_by_room_id(self, room_id: str) -> list:
         booking_date_query = {
-            "query": {
-                "match": {
-                    "_id": room_id
-                }
+            "match": {
+                "room_id": room_id
             }
         }
         reservations = await self.find_by_query(booking_date_query)

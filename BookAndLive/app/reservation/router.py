@@ -13,7 +13,7 @@ reservation_router = APIRouter(
 @reservation_router.get(
     "/"
 )
-async def get_all_client(mongo_repository: ReservationMongoRepository = Depends(ReservationMongoRepository.mongo_reservation_factory)) -> list[ReservationSchema]:
+async def get_all_reservation(mongo_repository: ReservationMongoRepository = Depends(ReservationMongoRepository.mongo_reservation_factory)) -> list[ReservationSchema]:
     return await mongo_repository.get_all()
 
 
@@ -68,7 +68,7 @@ async def reservation_update(reservation_id: str,
 
 
 @reservation_router.get(
-    "/client/{client_id}",
+    "/clients/{client_id}",
     response_description="All reservations for given client"
 )
 async def reservations_by_client_id(client_id: str,
