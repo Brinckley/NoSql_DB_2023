@@ -1,16 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends
-from app.reservation.model import *
-from bson import ObjectId, Timestamp
+from fastapi import APIRouter, HTTPException
 
-from app.reservation.repository_mongo import *
 from app.reservation.repository_elasticsearch import *
-
+from app.reservation.repository_mongo import *
 
 reservation_router = APIRouter(
     prefix="/reservations",
     tags=["reservations"],
     responses={404: {"description": "Not found"}},
 )
+
 
 @reservation_router.get(
     "/"
@@ -21,8 +19,7 @@ async def get_all_client(mongo_repository: ReservationMongoRepository = Depends(
 
 @reservation_router.get(
     "/{reservation_id}",
-    response_description="Single reservation with given ID",
-    response_model=ReservationSchema
+    response_description="Single reservation with given ID"
 )
 async def reservation_by_id(reservation_id: str,
                             mongo_repository: ReservationMongoRepository
@@ -39,11 +36,12 @@ async def reservation_by_id(reservation_id: str,
 @reservation_router.post(
     "/",
     response_description="Added reservation ID"
-    #response_model=str
 )
 async def reservation_add(reservation: UpdateReservationSchema,
-                          mongo_repository: ReservationMongoRepository = Depends(ReservationMongoRepository.mongo_reservation_factory),
-                          es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
+                          mongo_repository: ReservationMongoRepository
+                          = Depends(ReservationMongoRepository.mongo_reservation_factory),
+                          es_repository: ReservationEsRepository
+                          = Depends(ReservationEsRepository.es_reservation_factory)):
     if (reservation_id := await mongo_repository.add_reservation(reservation)) is not None:
         await es_repository.create(reservation_id, reservation)
         return {"reservation_id": reservation_id}
@@ -53,8 +51,7 @@ async def reservation_add(reservation: UpdateReservationSchema,
 
 @reservation_router.put(
     "/{reservation_id}",
-    response_description="Updated reservation",
-    response_model=UpdateReservationSchema
+    response_description="Updated reservation"
 )
 async def reservation_update(reservation_id: str,
                              reservation_upd: UpdateReservationSchema,
@@ -72,8 +69,7 @@ async def reservation_update(reservation_id: str,
 
 @reservation_router.get(
     "/client/{client_id}",
-    response_description="All reservations for given client",
-    response_model=list[ReservationSchema]
+    response_description="All reservations for given client"
 )
 async def reservations_by_client_id(client_id: str,
                                     es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
@@ -88,8 +84,7 @@ async def reservations_by_client_id(client_id: str,
 
 @reservation_router.get(
     "/from/{time_from}/to/{time_to}",
-    response_description="All reservations in the given period",
-    response_model=list[ReservationSchema]
+    response_description="All reservations in the given period"
 )
 async def reservations_from_to(time_from: datetime,
                                time_to: datetime,
@@ -102,8 +97,7 @@ async def reservations_from_to(time_from: datetime,
 
 @reservation_router.get(
     "/booking_time/{booking_time}",
-    response_description="All reservations in the given period",
-    response_model=list[ReservationSchema]
+    response_description="All reservations in the given period"
 )
 async def reservations_by_booking_time(booking_time: datetime,
                                        es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
@@ -115,8 +109,7 @@ async def reservations_by_booking_time(booking_time: datetime,
 
 @reservation_router.get(
     "/rooms/{room_id}",
-    response_description="All reservations for this room",
-    response_model=list[ReservationSchema]
+    response_description="All reservations for this room"
 )
 async def reservations_by_room_id(room_id: str,
                                   es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):

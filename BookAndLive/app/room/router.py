@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Body
-from app.room.repository_mongo import *
 from bson import ObjectId
-from app.room.repository_elasticsearch import *
+from fastapi import APIRouter, HTTPException
+
 from app.room.model import *
+from app.room.repository_elasticsearch import *
+from app.room.repository_mongo import *
 
 room_router = APIRouter(
     prefix="/room",
@@ -10,17 +11,18 @@ room_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @room_router.get(
     "/"
 )
-async def get_all_room(mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_room_factory)) -> list[RoomSchema]:
+async def get_all_room(mongo_repository: RoomMongoRepository
+                       = Depends(RoomMongoRepository.mongo_room_factory)) -> list[RoomSchema]:
     return await mongo_repository.get_all()
 
 
 @room_router.get(
     "/{room_id}",
-    response_description="Get a single room by id",
-    response_model=RoomSchema
+    response_description="Get a single room by id"
 )
 async def room_by_id(room_id: str,
                      mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_room_factory)):
@@ -36,7 +38,6 @@ async def room_by_id(room_id: str,
 @room_router.post(
     "/",
     response_description="New room id"
-    #response_model=str
 )
 async def room_add(room: UpdateRoomSchema,
                    mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_room_factory),
@@ -50,8 +51,7 @@ async def room_add(room: UpdateRoomSchema,
 
 @room_router.put(
     "/{room_id}",
-    response_description="Updated a single room",
-    response_model=RoomSchema
+    response_description="Updated a single room"
 )
 async def room_update(room_id: str,
                       room: UpdateRoomSchema,
@@ -69,8 +69,7 @@ async def room_update(room_id: str,
 
 @room_router.get(
     "/city/{city_name}",
-    response_description="All rooms available in the given city",
-    response_model=list[RoomSchema]
+    response_description="All rooms available in the given city"
 )
 async def list_available_rooms_city(city_name: str,
                                     es_repository: RoomEsRepository = Depends(RoomEsRepository.es_room_factory)):
@@ -82,8 +81,7 @@ async def list_available_rooms_city(city_name: str,
 
 @room_router.get(
     "/country/{country_name}",
-    response_description="All rooms available in the given country",
-    response_model=list[RoomSchema]
+    response_description="All rooms available in the given country"
 )
 async def list_available_rooms_country(country_name: str,
                                        es_repository: RoomEsRepository = Depends(RoomEsRepository.es_room_factory)):
@@ -95,8 +93,7 @@ async def list_available_rooms_country(country_name: str,
 
 @room_router.get(
     "/attributes/{attributes_list}",
-    response_description="All rooms available in the given country",
-    response_model=list[RoomSchema]
+    response_description="All rooms available in the given country"
 )
 async def list_available_rooms_attributes(attributes_list: str,
                                           es_repository: RoomEsRepository = Depends(RoomEsRepository.es_room_factory)):
