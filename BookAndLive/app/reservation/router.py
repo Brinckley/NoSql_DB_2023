@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException
 
 from app.reservation.repository_elasticsearch import *
 from app.reservation.repository_mongo import *
+from app.client.repository_mongo import *
+from app.room.repository_mongo import *
 
 reservation_router = APIRouter(
     prefix="/reservations",
@@ -40,8 +42,18 @@ async def reservation_by_id(reservation_id: str,
 async def reservation_add(reservation: UpdateReservationSchema,
                           mongo_repository: ReservationMongoRepository
                           = Depends(ReservationMongoRepository.mongo_reservation_factory),
+                          mongo_repository_client: ClientMongoRepository
+                          = Depends(ClientMongoRepository.mongo_client_factory),
+                          mongo_repository_room: RoomMongoRepository
+                          = Depends(RoomMongoRepository.mongo_room_factory),
                           es_repository: ReservationEsRepository
                           = Depends(ReservationEsRepository.es_reservation_factory)):
+    if (client := await mongo_repository_client.get_client(str(reservation.client_id))):
+        raise HTTPException(status_code=404, detail=f'Client with ID : {reservation.client_id} not found')
+    
+    if (room := await mongo_repository_room.get_room(str(reservation.room_id))):
+        raise HTTPException(status_code=404, detail=f'Room with ID : {reservation.room_id} not found')
+    
     if (reservation_id := await mongo_repository.add_reservation(reservation)) is not None:
         await es_repository.create(reservation_id, reservation)
         return {"reservation_id": reservation_id}
@@ -56,9 +68,17 @@ async def reservation_add(reservation: UpdateReservationSchema,
 async def reservation_update(reservation_id: str,
                              reservation_upd: UpdateReservationSchema,
                              mongo_repository: ReservationMongoRepository = Depends(ReservationMongoRepository.mongo_reservation_factory),
+                             mongo_repository_client: ClientMongoRepository = Depends(ClientMongoRepository.mongo_client_factory),
+                             mongo_repository_room: RoomMongoRepository = Depends(RoomMongoRepository.mongo_room_factory),
                              es_repository: ReservationEsRepository = Depends(ReservationEsRepository.es_reservation_factory)):
     if not ObjectId.is_valid(reservation_id):
         raise HTTPException(status_code=400, detail='Bad Request')
+    
+    if (client := await mongo_repository_client.get_client(str(reservation.client_id))):
+        raise HTTPException(status_code=404, detail=f'Client with ID : {reservation.client_id} not found')
+    
+    if (room := await mongo_repository_room.get_room(str(reservation.room_id))):
+        raise HTTPException(status_code=404, detail=f'Room with ID : {reservation.room_id} not found')
 
     if (reservation := await mongo_repository.update_reservation(reservation_id, reservation_upd)) is not None:
         await es_repository.update(reservation_id, reservation_upd)
