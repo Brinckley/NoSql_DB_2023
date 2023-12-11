@@ -11,8 +11,8 @@ services:
       - MONGO_URI=mongodb://mongo_db:27017
       - ELASTICSEARCH_URI=http://elasticsearch_db:9200
       - MEMCACHED_CLIENT_URI=memcached_node_01:11211
-      - MEMCACHED_ROOM_URL=memcached_node_02:11211
-      - MEMCACHED_RESERVATION_URL=memcached_node_03:11211
+      - MEMCACHED_ROOM_URL=memcached_node_02:11212
+      - MEMCACHED_RESERVATION_URL=memcached_node_03:11213
       - MONGO_DB=database
       - MONGO_COLLECTION=defcollection
       - MONGO_COLLECTION_CLIENT=mongo_index_client
