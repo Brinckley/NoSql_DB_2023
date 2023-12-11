@@ -1,4 +1,7 @@
 from fastapi import APIRouter, HTTPException
+from pymemcache import HashClient
+
+from app.cache.memcached_utils import get_memcached_reservation
 
 from app.reservation.repository_elasticsearch import *
 from app.reservation.repository_mongo import *
@@ -25,9 +28,14 @@ async def get_all_reservation(mongo_repository: ReservationMongoRepository = Dep
 )
 async def reservation_by_id(reservation_id: str,
                             mongo_repository: ReservationMongoRepository
-                            = Depends(ReservationMongoRepository.mongo_reservation_factory)):
+                            = Depends(ReservationMongoRepository.mongo_reservation_factory), 
+                            memcached_hash_reservation: HashClient = Depends(get_memcached_reservation)):
     if not ObjectId.is_valid(reservation_id):
         raise HTTPException(status_code=400, detail='Bad Request')
+    
+    room = memcached_hash_reservation.get(reservation_id)
+    if reservation is not None:
+        return {"reservation": reservation}
     
     if (reservation := await mongo_repository.get_reservation(reservation_id)) is not None:
         return {"reservation": reservation}

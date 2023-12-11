@@ -1,5 +1,8 @@
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException
+from pymemcache import HashClient
+
+from app.cache.memcached_utils import get_memcached_room
 
 from app.room.model import *
 from app.room.repository_elasticsearch import *
@@ -25,9 +28,14 @@ async def get_all_room(mongo_repository: RoomMongoRepository
     response_description="Get a single room by id"
 )
 async def room_by_id(room_id: str,
-                     mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_room_factory)):
+                     mongo_repository: RoomMongoRepository = Depends(RoomMongoRepository.mongo_room_factory),
+                     memcached_hash_room: HashClient = Depends(get_memcached_room)):
     if not ObjectId.is_valid(room_id):
         raise HTTPException(status_code=400, detail='Bad Request')
+    
+    room = memcached_hash_room.get(room_id)
+    if room is not None:
+        return {"room": room}
 
     if (room := await mongo_repository.get_room(room_id)) is not None:
         return {"room": room}
