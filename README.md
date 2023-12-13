@@ -21,6 +21,7 @@
     - Источник данных:
         - http://insideairbnb.com/get-the-data.html
         - http://data.insideairbnb.com/united-kingdom/england/london/2017-03-04/data/listings.csv.gz
+        - https://tomslee.net/airbnb-data-collection-get-the-data
         - Клиентов - пользователей stackoverflow
         - Брони - сгенерировать
  * Функциональное тестирование и исправление ошибок

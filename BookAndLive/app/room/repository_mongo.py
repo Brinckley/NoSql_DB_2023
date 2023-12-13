@@ -31,7 +31,7 @@ class RoomMongoRepository:
         return map_rooms(db_rooms)
 
     async def add_room(self,
-                 room: UpdateRoomSchema) -> str:
+                       room: UpdateRoomSchema) -> str:
         insert_result = await self._mongo_collection.insert_one(dict(room))
         print(f'Add room {insert_result.inserted_id} from mongo')
         return str(insert_result.inserted_id)

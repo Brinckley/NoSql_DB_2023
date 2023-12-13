@@ -88,6 +88,7 @@ def map_client(client: Any) -> ClientSchema | None:
         return None
     return ClientSchema(id=str(client['_id']), name=client['name'], email=client['email'])
 
+
 def map_rooms(room: Any) -> RoomSchema | None:
     if room is None:
         return None
@@ -96,6 +97,7 @@ def map_rooms(room: Any) -> RoomSchema | None:
                                                            address=room['full_address']['address']), 
                         description=room['description'], attributes=room['attributes'],
                         booking_status=room['booking_status'])
+
 
 def map_reservation(reservation: Any) -> ReservationSchema | None:
     if reservation is None:

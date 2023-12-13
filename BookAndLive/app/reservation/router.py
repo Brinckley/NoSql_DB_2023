@@ -33,9 +33,9 @@ async def reservation_by_id(reservation_id: str,
     if not ObjectId.is_valid(reservation_id):
         raise HTTPException(status_code=400, detail='Bad Request')
     
-    room = memcached_hash_reservation.get(reservation_id)
-    if reservation is not None:
-        return {"reservation": reservation}
+    # room = memcached_hash_reservation.get(reservation_id)
+    # if reservation is not None:
+    #     return {"reservation": reservation}
     
     if (reservation := await mongo_repository.get_reservation(reservation_id)) is not None:
         return {"reservation": reservation}
@@ -82,11 +82,11 @@ async def reservation_update(reservation_id: str,
     if not ObjectId.is_valid(reservation_id):
         raise HTTPException(status_code=400, detail='Bad Request')
     
-    if (client := await mongo_repository_client.get_client(str(reservation.client_id))):
-        raise HTTPException(status_code=404, detail=f'Client with ID : {reservation.client_id} not found')
-    
-    if (room := await mongo_repository_room.get_room(str(reservation.room_id))):
-        raise HTTPException(status_code=404, detail=f'Room with ID : {reservation.room_id} not found')
+    # if (client := await mongo_repository_client.get_client(str(reservation.client_id))):
+    #     raise HTTPException(status_code=404, detail=f'Client with ID : {reservation.client_id} not found')
+    #
+    # if (room := await mongo_repository_room.get_room(str(reservation.room_id))):
+    #     raise HTTPException(status_code=404, detail=f'Room with ID : {reservation.room_id} not found')
 
     if (reservation := await mongo_repository.update_reservation(reservation_id, reservation_upd)) is not None:
         await es_repository.update(reservation_id, reservation_upd)
