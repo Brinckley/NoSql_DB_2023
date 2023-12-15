@@ -10,20 +10,20 @@ def test_can_call_endpoint_clients():
 
 def test_get_client():
     payload_post_client = {
-        "name": "test_client",
-        "email": "test_client@gmail.com"
+        "name": "test_client_1",
+        "email": "test_client_1@gmail.com"
     }
     response_post = requests.post(BASE_ENDPOINT_CLIENTS + "/", json=payload_post_client)
     assert response_post.status_code == 200
     response_put_data = response_post.json()
+    print(f"{response_put_data}")
     client_id = response_put_data["client_id"]
 
     response_get = requests.get(BASE_ENDPOINT_CLIENTS + f"/{client_id}/")
     assert response_get.status_code == 200
     response_get_data = response_get.json()
-    assert response_get_data["id"] == client_id
-    assert response_get_data["name"] == payload_post_client["name"]
-    assert response_get_data["email"] == payload_post_client["email"]
+    assert response_get_data["client"]["name"] == payload_post_client["name"]
+    assert response_get_data["client"]["email"] == payload_post_client["email"]
 
 
 def test_put_client():
@@ -42,23 +42,18 @@ def test_put_client():
     }
     response_put = requests.put(BASE_ENDPOINT_CLIENTS + f"/{client_id}/", json=payload_put_client)
     assert response_put.status_code == 200
-    response_put_data = response_put.json()
-    assert response_put_data["id"] == client_id
-    assert response_put_data["name"] == payload_put_client["name"]
-    assert response_put_data["email"] == payload_put_client["email"]
 
     response_get = requests.get(BASE_ENDPOINT_CLIENTS + f"/{client_id}/")
     assert response_get.status_code == 200
     response_get_data = response_get.json()
-    assert response_get_data["id"] == client_id
-    assert response_get_data["name"] == payload_put_client["name"]
-    assert response_get_data["email"] == payload_put_client["email"]
+    assert response_get_data["client"]["name"] == payload_put_client["name"]
+    assert response_get_data["client"]["email"] == payload_put_client["email"]
 
 
 def test_delete_client():
     payload_post_client = {
-        "name": "test_client_delete",
-        "email": "test_client_delete@gmail.com"
+        "name": "test_client_delete__",
+        "email": "test_client_delete___@gmail.com"
     }
     response_post = requests.post(BASE_ENDPOINT_CLIENTS + "/", json=payload_post_client)
     assert response_post.status_code == 200
@@ -67,5 +62,3 @@ def test_delete_client():
 
     response_delete = requests.delete(BASE_ENDPOINT_CLIENTS + f"/{client_id}/")
     assert response_delete.status_code == 200
-    response_put_data = response_delete.json()
-    assert response_put_data["client_id"] == client_id

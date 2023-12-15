@@ -12,8 +12,8 @@ def test_can_call_endpoint_clients():
 
 def test_post_reservations():
     payload_post_client = {
-        "name": "reserve_test_client",
-        "email": "reserve_test_client@gmail.com"
+        "name": "reserve_test_client_aa",
+        "email": "reserve_test_client_aa@gmail.com"
     }
     response_post_client = requests.post(BASE_ENDPOINT_CLIENTS + "/", json=payload_post_client)
     assert response_post_client.status_code == 200
@@ -23,11 +23,11 @@ def test_post_reservations():
     payload_post_room = {
         "full_address":
         {
-            "country": "Test_Country_get_reserve",
-            "city": "Test_City_get_reserve",
-            "address": "Test_Address_get_reserve"
+            "country": "Test_Country_get_reserveaa",
+            "city": "Test_City_get_reserveaa",
+            "address": "Test_Address_get_reserveaa"
         },
-        "description": "Test_desc_get_reserve",
+        "description": "Test_desc_get_reserveaa",
         "attributes": "att1 att2 att3 res4 get5",
         "booking_status": True
     }
@@ -50,10 +50,10 @@ def test_post_reservations():
     response_get_reservation = requests.get(BASE_ENDPOINT_RESERVATIONS + f"/{reservation_id}/")
     assert response_get_reservation.status_code == 200
     response_get_data = response_get_reservation.json()
-    assert response_get_data["client_id"] == client_id
-    assert response_get_data["room_id"] == room_id
-    assert response_get_data["booking_date"] == payload_post_reservation["booking_date"]
-    assert response_get_data["booking_status"] == payload_post_reservation["booking_status"]
+    assert response_get_data["reservation"]["client_id"] == client_id
+    assert response_get_data["reservation"]["room_id"] == room_id
+    assert response_get_data["reservation"]["booking_date"] == payload_post_reservation["booking_date"]
+    assert response_get_data["reservation"]["booking_status"] == payload_post_reservation["booking_status"]
 
     payload_put_reservation = {
         "client_id": client_id,
@@ -64,12 +64,12 @@ def test_post_reservations():
     response_put_reservation = requests.put(BASE_ENDPOINT_RESERVATIONS + f"/{reservation_id}/", json=payload_put_reservation)
     assert response_put_reservation.status_code == 200
     response_put_reservation_data = response_put_reservation.json()
-    reservation_id = response_put_reservation_data["reservation_id"]
+    reservation_id = response_put_reservation_data["updated_reservation"]["id"]
 
     response_get_reservation = requests.get(BASE_ENDPOINT_RESERVATIONS + f"/{reservation_id}/")
     assert response_get_reservation.status_code == 200
     response_get_data = response_get_reservation.json()
-    assert response_get_data["client_id"] == client_id
-    assert response_get_data["room_id"] == room_id
-    assert response_get_data["booking_date"] == payload_put_reservation["booking_date"]
-    assert response_get_data["booking_status"] == payload_put_reservation["booking_status"]
+    assert response_get_data["reservation"]["client_id"] == client_id
+    assert response_get_data["reservation"]["room_id"] == room_id
+    assert response_get_data["reservation"]["booking_date"] == payload_put_reservation["booking_date"]
+    assert response_get_data["reservation"]["booking_status"] == payload_put_reservation["booking_status"]

@@ -32,10 +32,10 @@ async def room_by_id(room_id: str,
                      memcached_hash_room: HashClient = Depends(get_memcached_room)):
     if not ObjectId.is_valid(room_id):
         raise HTTPException(status_code=400, detail='Bad Request')
-    
-    room = memcached_hash_room.get(room_id)
-    if room is not None:
-        return {"room": room}
+    #
+    # room = memcached_hash_room.get(room_id)
+    # if room is not None:
+    #     return {"room": room}
 
     if (room := await mongo_repository.get_room(room_id)) is not None:
         return {"room": room}
