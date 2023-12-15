@@ -9,4 +9,5 @@ RUN pip install 'pydantic[email]'
 EXPOSE 8085
 
 COPY ./app /code/app
+COPY ./test /code/test
 ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0"]

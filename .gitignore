@@ -4,3 +4,4 @@
 **/.idea
 data/
 BookAndLive/test_main.http
+*/__pytest_cache__/

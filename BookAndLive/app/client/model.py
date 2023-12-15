@@ -1,8 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 
 
 class ClientSchema(BaseModel):
-    id: int = Field(..., alias='_id')
+    id: str
     name: str
     email: EmailStr
 
