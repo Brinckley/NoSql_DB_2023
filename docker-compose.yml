@@ -1,7 +1,7 @@
 x-api-config: &api-config
   build: app
   env_file:
-    - env/docker.env
+    - BookAndLive\env\docker.env
   depends_on:
 
     mongo_cluster_init:
@@ -33,7 +33,7 @@ x-api-config: &api-config
     memcached_reservation_node_03:
       condition: service_healthy
 
-x-mongodb-healthcheck: &mongodb-healhcheck
+x-mongodb-healthcheck: &mongodb-healthcheck
   healthcheck:
     test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
     interval: 10s
@@ -41,7 +41,7 @@ x-mongodb-healthcheck: &mongodb-healhcheck
     retries: 5
     start_period: 40s
 
-x-elasticsearch-healhcheck: &elasticsearch-healhcheck
+x-elasticsearch-healthcheck: &elasticsearch-healthcheck
   healthcheck:
     interval: 1s
     retries: 60
@@ -74,12 +74,12 @@ services:
         mongo_db_node_03:
           condition: service_healthy
       volumes:
-        - ./env/init-mongo.js:/scripts/init-mongo.js:ro
+        - .BookAndLive/env/init-mongo.js:/scripts/init-mongo.js:ro
       entrypoint: [ "mongosh", "--host", "mongo_db_node_01", "--file", "/scripts/init-mongo.js"]
 
   mongo_db_node_01:
     image: mongo
-    <<: *mongodb-healhcheck
+    <<: *mongodb-healthcheck
     volumes:
       - ./data/mongo_node_01:/data/db
     command: mongod --replSet docker-replicaset
@@ -88,14 +88,14 @@ services:
 
   mongo_db_node_02:
     image: mongo
-    <<: *mongodb-healhcheck
+    <<: *mongodb-healthcheck
     volumes:
       - ./data/mongo_node_02:/data/db
     command: mongod --replSet docker-replicaset
 
   mongo_db_node_03:
     image: mongo
-    <<: *mongodb-healhcheck
+    <<: *mongodb-healthcheck
     volumes:
       - ./data/mongo_node_03:/data/db
     command: mongod --replSet docker-replicaset
@@ -107,7 +107,7 @@ services:
       - node.name=elasticsearch_node_01
       - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
     env_file:
-      - env/elasticsearch.env
+      - BookAndLive/env/elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
 
@@ -118,7 +118,7 @@ services:
      - node.name=elasticsearch_node_02
      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
     env_file:
-      - env/elasticsearch.env
+      - BookAndLive/env/elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
 
@@ -129,7 +129,7 @@ services:
      - node.name=elasticsearch_node_03
      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
     env_file:
-      - env/elasticsearch.env
+      - BookAndLive/env/elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
 
@@ -195,4 +195,4 @@ services:
       - api_node_03
     volumes:
       - ./data/nginx/cache:/data/nginx/cache
-      - ./env/nginx.conf:/etc/nginx/nginx.conf:ro
+      - .BookAndLive/env/nginx.conf:/etc/nginx/nginx.conf:ro
