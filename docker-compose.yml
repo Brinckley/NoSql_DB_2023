@@ -1,5 +1,5 @@
 x-api-config: &api-config
-  build: app
+  build: BookAndLive\app
   env_file:
     - BookAndLive\env\docker.env
   depends_on:
@@ -43,14 +43,14 @@ x-mongodb-healthcheck: &mongodb-healthcheck
 
 x-elasticsearch-healthcheck: &elasticsearch-healthcheck
   healthcheck:
-    interval: 1s
+    interval: 10s
     retries: 60
     test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://127.0.0.1:9200
 
 x-memcached-healhcheck: &memcached-healhcheck
   healthcheck:
     test: echo stats | nc 127.0.0.1 11211
-    interval: 1s
+    interval: 10s
     retries: 60
 
 services:
