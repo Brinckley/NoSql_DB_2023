@@ -105,6 +105,7 @@ async def list_available_rooms_country(country_name: str,
 )
 async def list_available_rooms_attributes(attribute: str,
                                           es_repository: RoomEsRepository = Depends(RoomEsRepository.es_room_factory)):
+    attribute = attribute.replace('%2B', ' ')  # reformat the attribute string
     if (rooms := await es_repository.find_by_attribute(attribute)) is not None:
         return {"rooms": rooms}
     
