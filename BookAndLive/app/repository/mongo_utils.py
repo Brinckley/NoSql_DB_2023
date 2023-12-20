@@ -92,16 +92,17 @@ def map_client(client: Any) -> ClientSchema | None:
 def map_rooms(room: Any) -> RoomSchema | None:
     if room is None:
         return None
-    return RoomSchema(id=str(room['_id']), full_address=Address(country=room['full_address']['country'], 
-                                                           city=room['full_address']['city'], 
-                                                           address=room['full_address']['address']), 
-                        description=room['description'], attributes=room['attributes'],
-                        booking_status=room['booking_status'])
+    return RoomSchema(id=str(room['_id']), full_address=Address(country=room['full_address']['country'],
+                                                                city=room['full_address']['city'],
+                                                                address=room['full_address']['address']),
+                      description=room['description'], attributes=room['attributes'])
 
 
 def map_reservation(reservation: Any) -> ReservationSchema | None:
     if reservation is None:
         return None
     return ReservationSchema(id=str(reservation['_id']), client_id=reservation['client_id'],
-                             room_id=reservation['room_id'], booking_date=reservation['booking_date'],
+                             room_id=reservation['room_id'],
+                             start_booking_date=reservation['start_booking_date'],
+                             end_booking_date=reservation['end_booking_date'],
                              booking_status=reservation['booking_status'])

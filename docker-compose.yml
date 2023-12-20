@@ -133,21 +133,45 @@ services:
     volumes:
       - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
 
-  kibana:
-    image: kibana:8.10.2
+#  kibana:
+#    image: kibana:8.10.2
+#    ports:
+#      - 5601:5601
+#    volumes:
+#      - ./data/kibana:/usr/share/kibana/data
+#    environment:
+#      ELASTICSEARCH_HOSTS: '["http://elasticsearch_node_01:9200","http://elasticsearch_node_02:9200","http://elasticsearch_node_03:9200"]'
+#    depends_on:
+#      elasticsearch_node_01:
+#        condition: service_healthy
+#      elasticsearch_node_02:
+#        condition: service_healthy
+#      elasticsearch_node_03:
+#        condition: service_healthy
+
+# filler:
+#   build: ./DataFiller
+#   environment:
+#     - MONGO_URI=mongodb://mongo_db:27017
+#     - ELASTICSEARCH_URI=http://elasticsearch_db:9200
+#     - MONGO_DB=database
+#     - MONGO_COLLECTION=defcollection
+#     - MONGO_COLLECTION_CLIENT=mongo_index_client
+#     - MONGO_COLLECTION_ROOM=mongo_index_room
+#     - MONGO_COLLECTION_RESERVATION=mongo_index_reservation
+#     - ELASTICSEARCH_INDEX_CLIENT=es_index_client
+#     - ELASTICSEARCH_INDEX_RESERVATION=es_index_reservation
+#     - ELASTICSEARCH_INDEX_ROOM=es_index_room
+#   depends_on:
+#     elasticsearch_db:
+#       condition: service_healthy
+#     mongo_db:
+#       condition: service_started
+
+  redis:
+    image: redislabs/redismod
     ports:
-      - 5601:5601
-    volumes:
-      - ./data/kibana:/usr/share/kibana/data
-    environment:
-      ELASTICSEARCH_HOSTS: '["http://elasticsearch_node_01:9200","http://elasticsearch_node_02:9200","http://elasticsearch_node_03:9200"]'
-    depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
+      - '6379:6379'
 
   memcached_client_node_01:
     image: memcached:alpine

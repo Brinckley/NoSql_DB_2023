@@ -35,8 +35,7 @@ class RoomEsRepository:
         attributes_query = {
             "bool": {
                 "must": [
-                    {"match": {"booking_status": True}},
-                    {"term": {"attributes": attribute}},
+                    {"match_phrase": {"attributes": attribute}},
                 ]
             }
         }
@@ -47,7 +46,6 @@ class RoomEsRepository:
         country_name_query = {
             "bool": {
                 "must": [
-                    {"match": {"booking_status": True}},
                     {"match": {"full_address.country": country_name}},
                 ]
             }
@@ -59,7 +57,6 @@ class RoomEsRepository:
         city_name_query = {
             "bool": {
                 "must": [
-                    {"match": {"booking_status": True}},
                     {"match": {"full_address.city": city_name}},
                 ]
             }
@@ -77,7 +74,6 @@ class RoomEsRepository:
                          RoomSchema(id=room['_id'],
                                     description=room['_source']['description'],
                                     attributes=room['_source']['attributes'],
-                                    booking_status=room['_source']['booking_status'],
                                     full_address=Address(
                                         country=room['_source']['full_address']['country'],
                                         city=room['_source']['full_address']['city'],

@@ -5,7 +5,7 @@ from datetime import datetime
 from elasticsearch import AsyncElasticsearch
 
 from app.repository.elasticsearch_utils import get_elasticsearch_client
-from app.reservation.model import ReservationSchema, UpdateReservationSchema
+from app.reservation.model import ReservationSchema, UpdateReservationSchema, BookStatusEnum
 
 
 class ReservationEsRepository:
@@ -52,15 +52,109 @@ class ReservationEsRepository:
 
     async def find_by_range(self, left_date: datetime, right_date: datetime) -> list:
         range_date_query = {
-            "range": {
-                "booking_date": {
-                    "gte": left_date,
-                    "lte": right_date,
-                }
+            "bool": {
+                "filter": [
+                    {
+                        "range": {
+                            "start_booking_date": {
+                                "gte": left_date,
+                                "lte": right_date,
+                            }
+                        }
+                    },
+                    {
+                        "range": {
+                            "end_booking_date": {
+                                "gte": left_date,
+                                "lte": right_date,
+                            }
+                        }
+                    },
+                ]
             }
         }
         reservations = await self.find_by_query(range_date_query)
         return reservations
+
+
+    async def find_intersection(self, room_id: str, left_date: datetime, right_date: datetime) -> int:
+        later_date_query = {
+            "bool": {
+                "filter": [
+                    {"match": {"room_id": room_id}},
+                    {"match": {"booking_status": BookStatusEnum.paid}},
+                    {
+                        "range": {
+                            "start_booking_date": {
+                                "gte": left_date,
+                                "lte": right_date,
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        later_reservations = await self.find_by_query(later_date_query)
+        earlier_date_query = {
+            "bool": {
+                "filter": [
+                    {"match": {"room_id": room_id}},
+                    {"match": {"booking_status": BookStatusEnum.paid}},
+                    {
+                        "range": {
+                            "end_booking_date": {
+                                "gte": left_date,
+                                "lte": right_date,
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        earlier_reservations = await self.find_by_query(earlier_date_query)
+        return len(earlier_reservations) + len(later_reservations)
+
+    async def find_upd_intersection(self, reservation_id: str,
+                                    room_id: str, left_date: datetime, right_date: datetime) -> int:
+        later_date_query = {
+            "bool": {
+                "must": [
+                    {"match": {"room_id": room_id}},
+                    {
+                        "range": {
+                            "start_booking_date": {
+                                "gte": left_date,
+                                "lte": right_date,
+                            }
+                        }
+                    }
+                ],
+                "must_not": {
+                    {"match": {"reservation_id": reservation_id}}
+                }
+            }
+        }
+        later_reservations = await self.find_by_query(later_date_query)
+        earlier_date_query = {
+            "bool": {
+                "must": [
+                    {"match": {"room_id": room_id}},
+                    {
+                        "range": {
+                            "end_booking_date": {
+                                "gte": left_date,
+                                "lte": right_date,
+                            }
+                        }
+                    }
+                ],
+                "must_not": {
+                    {"match": {"reservation_id": reservation_id}}
+                }
+            }
+        }
+        earlier_reservations = await self.find_by_query(earlier_date_query)
+        return len(earlier_reservations) + len(later_reservations)
 
     async def find_by_room_id(self, room_id: str) -> list:
         booking_date_query = {
@@ -81,6 +175,7 @@ class ReservationEsRepository:
                                 ReservationSchema(id=reservation['_id'],
                                                   client_id=reservation['_source']['client_id'],
                                                   room_id=reservation['_source']['room_id'],
-                                                  booking_date=reservation['_source']['booking_date'],
+                                                  start_booking_date=reservation['_source']['start_booking_date'],
+                                                  end_booking_date=reservation['_source']['end_booking_date'],
                                                   booking_status=reservation['_source']['booking_status']), result))
         return reservations
