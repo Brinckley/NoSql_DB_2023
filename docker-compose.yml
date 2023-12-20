@@ -1,5 +1,5 @@
 x-api-config: &api-config
-  build: BookAndLive\app
+  build: BookAndLive
   env_file:
     - BookAndLive\env\docker.env
   depends_on:
@@ -56,13 +56,34 @@ x-memcached-healhcheck: &memcached-healhcheck
 services:
 
   api_node_01:
-    <<: *api-config
+    <<: [ *api-config ]
 
   api_node_02:
-    <<: *api-config
+    <<: [ *api-config ]
 
   api_node_03:
-    <<: *api-config
+    <<: [ *api-config ]
+
+  mongo_db_node_01:
+    image: mongo
+    <<: [ *mongodb-healthcheck ]
+    volumes:
+      - ./data/mongo_node_01:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_db_node_02:
+    image: mongo
+    <<: [ *mongodb-healthcheck ]
+    volumes:
+      - ./data/mongo_node_02:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_db_node_03:
+    image: mongo
+    <<: [ *mongodb-healthcheck ]
+    volumes:
+      - ./data/mongo_node_03:/data/db
+    command: mongod --replSet docker-replicaset
 
   mongo_cluster_init:
       image: mongo
@@ -74,31 +95,8 @@ services:
         mongo_db_node_03:
           condition: service_healthy
       volumes:
-        - .BookAndLive/env/init-mongo.js:/scripts/init-mongo.js:ro
+        - ./BookAndLive/env/init-mongo.js:/scripts/init-mongo.js:ro
       entrypoint: [ "mongosh", "--host", "mongo_db_node_01", "--file", "/scripts/init-mongo.js"]
-
-  mongo_db_node_01:
-    image: mongo
-    <<: *mongodb-healthcheck
-    volumes:
-      - ./data/mongo_node_01:/data/db
-    command: mongod --replSet docker-replicaset
-    ports:
-      - 27017:27017
-
-  mongo_db_node_02:
-    image: mongo
-    <<: *mongodb-healthcheck
-    volumes:
-      - ./data/mongo_node_02:/data/db
-    command: mongod --replSet docker-replicaset
-
-  mongo_db_node_03:
-    image: mongo
-    <<: *mongodb-healthcheck
-    volumes:
-      - ./data/mongo_node_03:/data/db
-    command: mongod --replSet docker-replicaset
 
   elasticsearch_node_01:
     image: elasticsearch:8.10.2
@@ -175,42 +173,43 @@ services:
 
   memcached_client_node_01:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_client_node_02:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_client_node_03:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_room_node_01:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_room_node_02:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_room_node_03:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_reservation_node_01:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_reservation_node_02:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   memcached_reservation_node_03:
     image: memcached:alpine
-    <<: *memcached-healhcheck
+    <<: [ *memcached-healhcheck ]
 
   nginx:
     image: nginx
+    build: path
     ports:
       - 80:80
     depends_on:
@@ -219,4 +218,4 @@ services:
       - api_node_03
     volumes:
       - ./data/nginx/cache:/data/nginx/cache
-      - .BookAndLive/env/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./BookAndLive/env/nginx.conf:/etc/nginx/nginx.conf:ro
