@@ -1,198 +1,98 @@
-x-api-config: &api-config
-  build: BookAndLive\app
-  env_file:
-    - BookAndLive\env\docker.env
-  depends_on:
-
-    mongo_cluster_init:
-      condition: service_completed_successfully
-
-    elasticsearch_node_01:
-      condition: service_healthy
-    elasticsearch_node_02:
-      condition: service_healthy
-    elasticsearch_node_03:
-      condition: service_healthy
-
-    memcached_client_node_01:
-      condition: service_healthy
-    memcached_client_node_02:
-      condition: service_healthy
-    memcached_client_node_03:
-      condition: service_healthy
-    memcached_room_node_01:
-      condition: service_healthy
-    memcached_room_node_02:
-      condition: service_healthy
-    memcached_room_node_03:
-      condition: service_healthy
-    memcached_reservation_node_01:
-      condition: service_healthy
-    memcached_reservation_node_02:
-      condition: service_healthy
-    memcached_reservation_node_03:
-      condition: service_healthy
-
-x-mongodb-healthcheck: &mongodb-healthcheck
-  healthcheck:
-    test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
-    interval: 10s
-    timeout: 10s
-    retries: 5
-    start_period: 40s
-
-x-elasticsearch-healthcheck: &elasticsearch-healthcheck
-  healthcheck:
-    interval: 10s
-    retries: 60
-    test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://127.0.0.1:9200
-
-x-memcached-healhcheck: &memcached-healhcheck
-  healthcheck:
-    test: echo stats | nc 127.0.0.1 11211
-    interval: 10s
-    retries: 60
+version: '3'
 
 services:
-
-  api_node_01:
-    <<: *api-config
-
-  api_node_02:
-    <<: *api-config
-
-  api_node_03:
-    <<: *api-config
-
-  mongo_cluster_init:
-      image: mongo
-      depends_on:
-        mongo_db_node_01:
-          condition: service_healthy
-        mongo_db_node_02:
-          condition: service_healthy
-        mongo_db_node_03:
-          condition: service_healthy
-      volumes:
-        - .BookAndLive/env/init-mongo.js:/scripts/init-mongo.js:ro
-      entrypoint: [ "mongosh", "--host", "mongo_db_node_01", "--file", "/scripts/init-mongo.js"]
-
-  mongo_db_node_01:
-    image: mongo
-    <<: *mongodb-healthcheck
-    volumes:
-      - ./data/mongo_node_01:/data/db
-    command: mongod --replSet docker-replicaset
+  api:
+    build: 
+      context: ./BookAndLive
     ports:
-      - 27017:27017
-
-  mongo_db_node_02:
-    image: mongo
-    <<: *mongodb-healthcheck
-    volumes:
-      - ./data/mongo_node_02:/data/db
-    command: mongod --replSet docker-replicaset
-
-  mongo_db_node_03:
-    image: mongo
-    <<: *mongodb-healthcheck
-    volumes:
-      - ./data/mongo_node_03:/data/db
-    command: mongod --replSet docker-replicaset
-
-  elasticsearch_node_01:
-    image: elasticsearch:8.10.2
-    <<: [ *elasticsearch-healthcheck ]
+      - 8000:8000
     environment:
-      - node.name=elasticsearch_node_01
-      - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
-    env_file:
-      - BookAndLive/env/elasticsearch.env
-    volumes:
-      - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
-
-  elasticsearch_node_02:
-    image: elasticsearch:8.10.2
-    <<: [ *elasticsearch-healthcheck ]
-    environment:
-     - node.name=elasticsearch_node_02
-     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
-    env_file:
-      - BookAndLive/env/elasticsearch.env
-    volumes:
-      - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
-
-  elasticsearch_node_03:
-    image: elasticsearch:8.10.2
-    <<: [ *elasticsearch-healthcheck ]
-    environment:
-     - node.name=elasticsearch_node_03
-     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
-    env_file:
-      - BookAndLive/env/elasticsearch.env
-    volumes:
-      - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
-
-  kibana:
-    image: kibana:8.10.2
-    ports:
-      - 5601:5601
-    volumes:
-      - ./data/kibana:/usr/share/kibana/data
-    environment:
-      ELASTICSEARCH_HOSTS: '["http://elasticsearch_node_01:9200","http://elasticsearch_node_02:9200","http://elasticsearch_node_03:9200"]'
+      - MONGO_URI=mongodb://mongo_db:27017
+      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
+      - REDIS_URI=redis:6379
+      - MEMCACHED_CLIENT_URI=memcached_node_01:11211
+      - MEMCACHED_ROOM_URL=memcached_node_02:11212
+      - MEMCACHED_RESERVATION_URL=memcached_node_03:11213
+      - MONGO_DB=database
+      - MONGO_COLLECTION=defcollection
+      - MONGO_COLLECTION_CLIENT=mongo_index_client
+      - MONGO_COLLECTION_ROOM=mongo_index_room
+      - MONGO_COLLECTION_RESERVATION=mongo_index_reservation
+      - ELASTICSEARCH_INDEX_CLIENT=es_index_client
+      - ELASTICSEARCH_INDEX_RESERVATION=es_index_reservation
+      - ELASTICSEARCH_INDEX_ROOM=es_index_room
     depends_on:
-      elasticsearch_node_01:
+      elasticsearch_db:
         condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
+      mongo_db:
+        condition: service_started
+      redis:
+        condition: service_started
+   
+# filler:
+#   build: ./DataFiller
+#   environment:
+#     - MONGO_URI=mongodb://mongo_db:27017
+#     - ELASTICSEARCH_URI=http://elasticsearch_db:9200
+#     - MONGO_DB=database
+#     - MONGO_COLLECTION=defcollection
+#     - MONGO_COLLECTION_CLIENT=mongo_index_client
+#     - MONGO_COLLECTION_ROOM=mongo_index_room
+#     - MONGO_COLLECTION_RESERVATION=mongo_index_reservation
+#     - ELASTICSEARCH_INDEX_CLIENT=es_index_client
+#     - ELASTICSEARCH_INDEX_RESERVATION=es_index_reservation
+#     - ELASTICSEARCH_INDEX_ROOM=es_index_room
+#   depends_on:
+#     elasticsearch_db:
+#       condition: service_healthy
+#     mongo_db:
+#       condition: service_started
 
-  memcached_client_node_01:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_client_node_02:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_client_node_03:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_room_node_01:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_room_node_02:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_room_node_03:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_reservation_node_01:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_reservation_node_02:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  memcached_reservation_node_03:
-    image: memcached:alpine
-    <<: *memcached-healhcheck
-
-  nginx:
-    image: nginx
+  mongo_db:
+    image: mongo:7.0.2
     ports:
-      - 80:80
-    depends_on:
-      - api_node_01
-      - api_node_02
-      - api_node_03
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=database
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
     volumes:
-      - ./data/nginx/cache:/data/nginx/cache
-      - .BookAndLive/env/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./data/mongo:/data/db
+
+  elasticsearch_db:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    volumes:
+      - ./data/elasticsearch:/data/elasticsearch
+
+# kibana:
+#   image: kibana:8.10.2
+#   container_name: kibana
+#   environment:
+#     - ELASTICSEARCH_HOSTS=http://elasticsearch_db:9200
+#   restart: unless-stopped
+#   ports:
+#     - '5601:5601'
+
+  redis:
+    image: redislabs/redismod
+    ports:
+      - '6379:6379'
+      
+  memcached_node_01:
+    image: memcached
+ 
+  memcached_node_02:
+   image: memcached
+
+  memcached_node_03:
+    image: memcached
