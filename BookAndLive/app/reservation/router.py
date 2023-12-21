@@ -107,10 +107,10 @@ async def reservation_add(reservation: UpdateReservationSchema,
                           es_repository: ReservationEsRepository
                           = Depends(ReservationEsRepository.es_reservation_factory),
                           redis_lock: RedisLock = Depends(RedisLock.redis_reservation_factory)):
-    if (client := await mongo_repository_client.get_client(str(reservation.client_id))):
+    if (not(client := await mongo_repository_client.get_client(str(reservation.client_id)))):
         raise HTTPException(status_code=404, detail=f'Client with ID : {reservation.client_id} not found')
     
-    if (room := await mongo_repository_room.get_room(str(reservation.room_id))):
+    if (not(room := await mongo_repository_room.get_room(str(reservation.room_id)))):
         raise HTTPException(status_code=404, detail=f'Room with ID : {reservation.room_id} not found')
 
     while i := 3 > 0:
@@ -155,10 +155,10 @@ async def reservation_update(reservation_id: str,
     if not ObjectId.is_valid(reservation_id):
         raise HTTPException(status_code=400, detail='Bad Request')
     
-    if (client := await mongo_repository_client.get_client(str(reservation_upd.client_id))):
+    if (not(client := await mongo_repository_client.get_client(str(reservation_upd.client_id)))):
         raise HTTPException(status_code=404, detail=f'Client with ID : {reservation_upd.client_id} not found')
     
-    if (room := await mongo_repository_room.get_room(str(reservation_upd.room_id))):
+    if (not(room := await mongo_repository_room.get_room(str(reservation_upd.room_id)))):
         raise HTTPException(status_code=404, detail=f'Room with ID : {reservation_upd.room_id} not found')
 
     if es_repository.find_upd_intersection(reservation_id, reservation_upd.room_id,
