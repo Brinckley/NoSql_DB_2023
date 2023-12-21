@@ -1,6 +1,6 @@
 import requests
 
-BASE_ENDPOINT_CLIENTS = "http://localhost:8000/clients"
+BASE_ENDPOINT_CLIENTS = "http://localhost:80/clients"
 
 
 def test_can_call_endpoint_clients():

@@ -13,12 +13,14 @@ class ReservationSchema(BaseModel):
     id: str
     client_id: str
     room_id: str
-    booking_date: datetime = None
+    start_booking_date: datetime = None
+    end_booking_date: datetime = None
     booking_status: BookStatusEnum = BookStatusEnum.default
 
 
 class UpdateReservationSchema(BaseModel):
     client_id: str
     room_id: str
-    booking_date: datetime = None
+    start_booking_date: datetime = None
+    end_booking_date: datetime = None
     booking_status: BookStatusEnum = BookStatusEnum.default
