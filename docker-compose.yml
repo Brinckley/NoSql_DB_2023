@@ -209,7 +209,6 @@ services:
 
   nginx:
     image: nginx
-    build: path
     ports:
       - 80:80
     depends_on:
