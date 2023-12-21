@@ -13,9 +13,11 @@ class RoomSchema(BaseModel):
     full_address: Address
     description: str
     attributes: str
+    booking_status: bool
 
 
 class UpdateRoomSchema(BaseModel):  # class contains changeable fields for RoomSchema
     full_address: Address
     description: str
     attributes: str
+    booking_status: bool

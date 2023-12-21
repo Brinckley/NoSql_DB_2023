@@ -12,10 +12,8 @@ memcached_reservation: Client = None
 def get_memcached_client() -> Client:
     return memcached_client
 
-
 def get_memcached_room() -> Client:
     return memcached_room
-
 
 def get_memcached_reservation() -> Client:
     return memcached_reservation
