@@ -64,12 +64,16 @@ services:
 
   mongo_db_node_01:
     image: mongo:7.0.2
+    ports:
+      - 27017:27017
     <<: [ *mongodb-healthcheck ]
     volumes:
       - ./data/mongo_node_01:/data/db
     command: mongod --replSet docker-replicaset
 
   mongo_db_node_02:
+    ports:
+      - 27018:27018
     image: mongo:7.0.2
     <<: [ *mongodb-healthcheck ]
     volumes:
