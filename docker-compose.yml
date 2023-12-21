@@ -68,6 +68,8 @@ services:
     volumes:
       - ./data/mongo_node_01:/data/db
     command: mongod --replSet docker-replicaset
+    ports:
+      - 27017:27017
 
   mongo_db_node_02:
     image: mongo:7.0.2
@@ -124,25 +126,6 @@ services:
 #        condition: service_healthy
 #      elasticsearch_node_03:
 #        condition: service_healthy
-
-# filler:
-#   build: ./DataFiller
-#   environment:
-#     - MONGO_URI=mongodb://mongo_db:27017
-#     - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-#     - MONGO_DB=database
-#     - MONGO_COLLECTION=defcollection
-#     - MONGO_COLLECTION_CLIENT=mongo_index_client
-#     - MONGO_COLLECTION_ROOM=mongo_index_room
-#     - MONGO_COLLECTION_RESERVATION=mongo_index_reservation
-#     - ELASTICSEARCH_INDEX_CLIENT=es_index_client
-#     - ELASTICSEARCH_INDEX_RESERVATION=es_index_reservation
-#     - ELASTICSEARCH_INDEX_ROOM=es_index_room
-#   depends_on:
-#     elasticsearch_db:
-#       condition: service_healthy
-#     mongo_db:
-#       condition: service_started
 
   redis:
     image: redislabs/redismod
